@@ -14,16 +14,239 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      alumni_contacts: {
+        Row: {
+          company_id: string
+          created_at: string
+          function: string | null
+          id: string
+          name: string
+          seniority: string | null
+          source: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          function?: string | null
+          id?: string
+          name: string
+          seniority?: string | null
+          source?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          function?: string | null
+          id?: string
+          name?: string
+          seniority?: string | null
+          source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alumni_contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      applications: {
+        Row: {
+          date_applied: string
+          id: string
+          posting_id: string
+          user_id: string
+        }
+        Insert: {
+          date_applied?: string
+          id?: string
+          posting_id: string
+          user_id: string
+        }
+        Update: {
+          date_applied?: string
+          id?: string
+          posting_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_posting_id_fkey"
+            columns: ["posting_id"]
+            isOneToOne: false
+            referencedRelation: "postings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      companies: {
+        Row: {
+          active: boolean
+          ats_feed_url: string | null
+          ats_type: Database["public"]["Enums"]["ats_type_enum"]
+          created_at: string
+          id: string
+          monitoring_method: string
+          name: string
+        }
+        Insert: {
+          active?: boolean
+          ats_feed_url?: string | null
+          ats_type: Database["public"]["Enums"]["ats_type_enum"]
+          created_at?: string
+          id?: string
+          monitoring_method?: string
+          name: string
+        }
+        Update: {
+          active?: boolean
+          ats_feed_url?: string | null
+          ats_type?: Database["public"]["Enums"]["ats_type_enum"]
+          created_at?: string
+          id?: string
+          monitoring_method?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      posting_alumni_overlap: {
+        Row: {
+          id: string
+          overlap_count: number
+          posting_id: string
+        }
+        Insert: {
+          id?: string
+          overlap_count?: number
+          posting_id: string
+        }
+        Update: {
+          id?: string
+          overlap_count?: number
+          posting_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posting_alumni_overlap_posting_id_fkey"
+            columns: ["posting_id"]
+            isOneToOne: true
+            referencedRelation: "postings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      postings: {
+        Row: {
+          company_id: string
+          created_at: string
+          date_posted: string | null
+          function_tag: string | null
+          id: string
+          last_scored_at: string | null
+          level_tag: string | null
+          location: string | null
+          priority_score: number
+          source_url: string
+          title: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          date_posted?: string | null
+          function_tag?: string | null
+          id?: string
+          last_scored_at?: string | null
+          level_tag?: string | null
+          location?: string | null
+          priority_score?: number
+          source_url: string
+          title: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          date_posted?: string | null
+          function_tag?: string | null
+          id?: string
+          last_scored_at?: string | null
+          level_tag?: string | null
+          location?: string | null
+          priority_score?: number
+          source_url?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "postings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string
+          graduation_year: number | null
+          id: string
+          kellogg_email: string
+          name: string | null
+          target_function: string | null
+          target_level: string | null
+        }
+        Insert: {
+          created_at?: string
+          graduation_year?: number | null
+          id: string
+          kellogg_email: string
+          name?: string | null
+          target_function?: string | null
+          target_level?: string | null
+        }
+        Update: {
+          created_at?: string
+          graduation_year?: number | null
+          id?: string
+          kellogg_email?: string
+          name?: string | null
+          target_function?: string | null
+          target_level?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      posting_application_counts: {
+        Row: {
+          applied_count: number | null
+          posting_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_posting_id_fkey"
+            columns: ["posting_id"]
+            isOneToOne: false
+            referencedRelation: "postings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      ats_type_enum: "greenhouse" | "lever" | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +373,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      ats_type_enum: ["greenhouse", "lever", "other"],
+    },
   },
 } as const
