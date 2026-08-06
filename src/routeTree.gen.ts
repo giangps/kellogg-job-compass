@@ -14,6 +14,10 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AuthenticatedPreferencesRouteImport } from './routes/_authenticated/preferences'
+import { Route as ApiPublicN8nCompaniesRouteImport } from './routes/api/public/n8n/companies'
+import { Route as ApiPublicN8nRescoreRouteImport } from './routes/api/public/n8n/rescore'
+import { Route as ApiPublicN8nPostingsClassificationRouteImport } from './routes/api/public/n8n/postings/classification'
+import { Route as ApiPublicN8nPostingsUpsertRouteImport } from './routes/api/public/n8n/postings/upsert'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,18 +44,48 @@ const AuthenticatedPreferencesRoute =
     path: '/preferences',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicN8nCompaniesRoute = ApiPublicN8nCompaniesRouteImport.update({
+  id: '/api/public/n8n/companies',
+  path: '/api/public/n8n/companies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicN8nRescoreRoute = ApiPublicN8nRescoreRouteImport.update({
+  id: '/api/public/n8n/rescore',
+  path: '/api/public/n8n/rescore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicN8nPostingsClassificationRoute =
+  ApiPublicN8nPostingsClassificationRouteImport.update({
+    id: '/api/public/n8n/postings/classification',
+    path: '/api/public/n8n/postings/classification',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicN8nPostingsUpsertRoute =
+  ApiPublicN8nPostingsUpsertRouteImport.update({
+    id: '/api/public/n8n/postings/upsert',
+    path: '/api/public/n8n/postings/upsert',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/preferences': typeof AuthenticatedPreferencesRoute
+  '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
+  '/api/public/n8n/rescore': typeof ApiPublicN8nRescoreRoute
+  '/api/public/n8n/postings/classification': typeof ApiPublicN8nPostingsClassificationRoute
+  '/api/public/n8n/postings/upsert': typeof ApiPublicN8nPostingsUpsertRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/preferences': typeof AuthenticatedPreferencesRoute
+  '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
+  '/api/public/n8n/rescore': typeof ApiPublicN8nRescoreRoute
+  '/api/public/n8n/postings/classification': typeof ApiPublicN8nPostingsClassificationRoute
+  '/api/public/n8n/postings/upsert': typeof ApiPublicN8nPostingsUpsertRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -60,12 +94,32 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/preferences': typeof AuthenticatedPreferencesRoute
+  '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
+  '/api/public/n8n/rescore': typeof ApiPublicN8nRescoreRoute
+  '/api/public/n8n/postings/classification': typeof ApiPublicN8nPostingsClassificationRoute
+  '/api/public/n8n/postings/upsert': typeof ApiPublicN8nPostingsUpsertRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/feed' | '/preferences'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/feed'
+    | '/preferences'
+    | '/api/public/n8n/companies'
+    | '/api/public/n8n/rescore'
+    | '/api/public/n8n/postings/classification'
+    | '/api/public/n8n/postings/upsert'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/feed' | '/preferences'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/feed'
+    | '/preferences'
+    | '/api/public/n8n/companies'
+    | '/api/public/n8n/rescore'
+    | '/api/public/n8n/postings/classification'
+    | '/api/public/n8n/postings/upsert'
   id:
     | '__root__'
     | '/'
@@ -73,11 +127,19 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/feed'
     | '/_authenticated/preferences'
+    | '/api/public/n8n/companies'
+    | '/api/public/n8n/rescore'
+    | '/api/public/n8n/postings/classification'
+    | '/api/public/n8n/postings/upsert'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  ApiPublicN8nCompaniesRoute: typeof ApiPublicN8nCompaniesRoute
+  ApiPublicN8nRescoreRoute: typeof ApiPublicN8nRescoreRoute
+  ApiPublicN8nPostingsClassificationRoute: typeof ApiPublicN8nPostingsClassificationRoute
+  ApiPublicN8nPostingsUpsertRoute: typeof ApiPublicN8nPostingsUpsertRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -117,6 +179,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPreferencesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/n8n/companies': {
+      id: '/api/public/n8n/companies'
+      path: '/api/public/n8n/companies'
+      fullPath: '/api/public/n8n/companies'
+      preLoaderRoute: typeof ApiPublicN8nCompaniesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/n8n/rescore': {
+      id: '/api/public/n8n/rescore'
+      path: '/api/public/n8n/rescore'
+      fullPath: '/api/public/n8n/rescore'
+      preLoaderRoute: typeof ApiPublicN8nRescoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/n8n/postings/classification': {
+      id: '/api/public/n8n/postings/classification'
+      path: '/api/public/n8n/postings/classification'
+      fullPath: '/api/public/n8n/postings/classification'
+      preLoaderRoute: typeof ApiPublicN8nPostingsClassificationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/n8n/postings/upsert': {
+      id: '/api/public/n8n/postings/upsert'
+      path: '/api/public/n8n/postings/upsert'
+      fullPath: '/api/public/n8n/postings/upsert'
+      preLoaderRoute: typeof ApiPublicN8nPostingsUpsertRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -138,6 +228,11 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  ApiPublicN8nCompaniesRoute: ApiPublicN8nCompaniesRoute,
+  ApiPublicN8nRescoreRoute: ApiPublicN8nRescoreRoute,
+  ApiPublicN8nPostingsClassificationRoute:
+    ApiPublicN8nPostingsClassificationRoute,
+  ApiPublicN8nPostingsUpsertRoute: ApiPublicN8nPostingsUpsertRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
