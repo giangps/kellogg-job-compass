@@ -162,13 +162,6 @@ function AuthPage() {
           Access is limited to <span className="text-foreground">@u.northwestern.edu</span> and{" "}
           <span className="text-foreground">@kelloggalumni.northwestern.edu</span> addresses.
         </p>
-        <Link
-          to="/"
-          className="sr-only"
-          aria-hidden
-        >
-          Home
-        </Link>
       </div>
     </div>
   );
