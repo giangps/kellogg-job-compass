@@ -108,7 +108,7 @@ function AuthPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@u.northwestern.edu"
+              placeholder="you@kellogg.northwestern.edu"
               className="w-full rounded-lg border border-input bg-card px-3 py-2.5 text-sm text-foreground outline-none transition-shadow placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -159,7 +159,7 @@ function AuthPage() {
         </button>
 
         <p className="mt-8 text-xs leading-relaxed text-muted-foreground">
-          Access is limited to <span className="text-foreground">@u.northwestern.edu</span> and{" "}
+          Access is limited to <span className="text-foreground">@kellogg.northwestern.edu</span> and{" "}
           <span className="text-foreground">@kelloggalumni.northwestern.edu</span> addresses.
         </p>
       </div>

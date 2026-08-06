@@ -1,5 +1,5 @@
 export const ALLOWED_DOMAINS = [
-  "u.northwestern.edu",
+  "kellogg.northwestern.edu",
   "kelloggalumni.northwestern.edu",
 ] as const;
 
@@ -12,7 +12,7 @@ export function isKelloggEmail(email: string): boolean {
 }
 
 export const DOMAIN_ERROR =
-  "Use your Kellogg email (@u.northwestern.edu or @kelloggalumni.northwestern.edu).";
+  "Use your Kellogg email (@kellogg.northwestern.edu or @kelloggalumni.northwestern.edu).";
 
 /* ---------------------------------------------------------------------------
  * PLACEHOLDER DATA + LOCAL STATE
