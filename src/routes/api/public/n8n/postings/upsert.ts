@@ -50,19 +50,32 @@ export const Route = createFileRoute("/api/public/n8n/postings/upsert")({
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        // Which (company_id, source_url) pairs already exist?
-        const urls = parsed.postings.map((p) => p.source_url);
-        const { data: existing, error: existingError } = await supabaseAdmin
-          .from("postings")
-          .select("id, company_id, source_url")
-          .in("source_url", urls);
-        if (existingError) {
-          console.error("[n8n/postings/upsert] lookup", existingError);
-          return json({ error: "Query failed" }, 500);
-        }
-        const seen = new Set((existing ?? []).map((r) => `${r.company_id}|${r.source_url}`));
+        // Dedupe within the batch: a repeated (company_id, source_url) pair makes
+        // Postgres reject the whole statement ("cannot affect row a second time").
+        const byKey = new Map<string, (typeof parsed.postings)[number]>();
+        for (const p of parsed.postings) byKey.set(`${p.company_id}|${p.source_url}`, p);
+        const postings = [...byKey.values()];
+        const duplicates_in_batch = parsed.postings.length - postings.length;
 
-        const rows = parsed.postings.map((p) => ({
+        // Which (company_id, source_url) pairs already exist?
+        // Chunked: PostgREST puts `in.(...)` filters in the URL, so a single
+        // 979-item lookup exceeds the max URL length and fails at the transport layer.
+        const urls = postings.map((p) => p.source_url);
+        const seen = new Set<string>();
+        const CHUNK = 100;
+        for (let i = 0; i < urls.length; i += CHUNK) {
+          const { data: existing, error: existingError } = await supabaseAdmin
+            .from("postings")
+            .select("id, company_id, source_url")
+            .in("source_url", urls.slice(i, i + CHUNK));
+          if (existingError) {
+            console.error("[n8n/postings/upsert] lookup", existingError);
+            return json({ error: "Query failed", detail: existingError.message }, 500);
+          }
+          for (const r of existing ?? []) seen.add(`${r.company_id}|${r.source_url}`);
+        }
+
+        const rows = postings.map((p) => ({
           company_id: p.company_id,
           title: p.title,
           location: p.location ?? null,
@@ -70,22 +83,27 @@ export const Route = createFileRoute("/api/public/n8n/postings/upsert")({
           source_url: p.source_url,
         }));
 
-        const { data: upserted, error } = await supabaseAdmin
-          .from("postings")
-          .upsert(rows, { onConflict: "company_id,source_url" })
-          .select("id, company_id, source_url");
-        if (error) {
-          console.error("[n8n/postings/upsert]", error);
-          return json({ error: "Upsert failed" }, 500);
+        const results: { id: string; source_url: string; is_new: boolean }[] = [];
+        for (let i = 0; i < rows.length; i += 500) {
+          const { data: upserted, error } = await supabaseAdmin
+            .from("postings")
+            .upsert(rows.slice(i, i + 500), { onConflict: "company_id,source_url" })
+            .select("id, company_id, source_url");
+          if (error) {
+            console.error("[n8n/postings/upsert]", error);
+            return json({ error: "Upsert failed", detail: error.message }, 500);
+          }
+          for (const r of upserted ?? []) {
+            results.push({
+              id: r.id,
+              source_url: r.source_url,
+              is_new: !seen.has(`${r.company_id}|${r.source_url}`),
+            });
+          }
         }
 
-        const results = (upserted ?? []).map((r) => ({
-          id: r.id,
-          source_url: r.source_url,
-          is_new: !seen.has(`${r.company_id}|${r.source_url}`),
-        }));
+        return json({ results, duplicates_in_batch });
 
-        return json({ results });
       },
     },
   },
