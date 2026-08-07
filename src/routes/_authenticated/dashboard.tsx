@@ -32,6 +32,7 @@ type AppliedRow = {
   location: string | null;
   datePosted: string | null;
   company: string;
+  sourceUrl: string;
   overlapCount: number;
   othersApplied: number;
 };
@@ -62,7 +63,7 @@ function DashboardPage() {
       const { data: rows, error } = await supabase
         .from("applications")
         .select(
-          "posting_id, date_applied, postings(id, title, location, date_posted, companies(name), posting_alumni_overlap(overlap_count))",
+          "posting_id, date_applied, postings(id, title, location, date_posted, source_url, companies(name), posting_alumni_overlap(overlap_count))",
         )
         .eq("user_id", profile!.id)
         .order("date_applied", { ascending: false });
@@ -101,6 +102,7 @@ function DashboardPage() {
             location: posting.location,
             datePosted: posting.date_posted,
             company: company?.name ?? "—",
+            sourceUrl: posting.source_url,
             overlapCount: overlap?.overlap_count ?? 0,
             // This user applied to every row here, so the shared count always excludes them.
             othersApplied: Math.max(0, raw - 1),
@@ -151,7 +153,14 @@ function DashboardPage() {
               <li key={row.postingId} className="rounded-xl border border-border bg-card p-4">
                 <p className="text-sm font-medium text-foreground">{row.company}</p>
                 <h2 className="mt-0.5 text-base font-semibold leading-snug text-foreground">
-                  {row.title}
+                  <a
+                    href={row.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
+                    {row.title}
+                  </a>
                 </h2>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Logged {new Date(row.dateApplied).toLocaleDateString()}

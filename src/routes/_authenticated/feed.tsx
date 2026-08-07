@@ -18,8 +18,7 @@ export const Route = createFileRoute("/_authenticated/feed")({
       { property: "og:title", content: "Cohort Job Feed" },
       {
         property: "og:description",
-        content:
-          "Prioritized postings with aggregate network signals — counts only, never names.",
+        content: "Prioritized postings with aggregate network signals — counts only, never names.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -35,6 +34,7 @@ type FeedRow = {
   datePosted: string | null;
   priorityScore: number;
   company: string;
+  sourceUrl: string;
   overlapCount: number;
   appliedCount: number;
   viewerApplied: boolean;
@@ -71,7 +71,7 @@ function FeedPage() {
       const { data: postings, error } = await supabase
         .from("postings")
         .select(
-          "id, title, location, date_posted, priority_score, companies(name), posting_alumni_overlap(overlap_count)",
+          "id, title, location, date_posted, priority_score, source_url, companies(name), posting_alumni_overlap(overlap_count)",
         )
         .eq("function_tag", targetFunction!)
         .eq("level_tag", targetLevel!)
@@ -86,7 +86,11 @@ function FeedPage() {
           .from("posting_application_counts")
           .select("posting_id, applied_count")
           .in("posting_id", ids),
-        supabase.from("applications").select("posting_id").eq("user_id", profile!.id).in("posting_id", ids),
+        supabase
+          .from("applications")
+          .select("posting_id")
+          .eq("user_id", profile!.id)
+          .in("posting_id", ids),
       ]);
       if (countsRes.error) throw countsRes.error;
       if (mineRes.error) throw mineRes.error;
@@ -110,6 +114,7 @@ function FeedPage() {
           datePosted: p.date_posted,
           priorityScore: Number(p.priority_score),
           company: company?.name ?? "—",
+          sourceUrl: p.source_url,
           overlapCount: overlap?.overlap_count ?? 0,
           appliedCount: Math.max(0, raw - (viewerApplied ? 1 : 0)),
           viewerApplied,
@@ -200,7 +205,14 @@ function PostingCard({
         <div className="min-w-0">
           <p className="text-sm font-medium text-foreground">{row.company}</p>
           <h2 className="mt-0.5 text-base font-semibold leading-snug text-foreground">
-            {row.title}
+            <a
+              href={row.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline"
+            >
+              {row.title}
+            </a>
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
             {[row.location, days === null ? null : `${days}d ago`].filter(Boolean).join(" · ")}
