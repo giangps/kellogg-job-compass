@@ -16,7 +16,7 @@ const bodySchema = z.object({
       }),
     )
     .min(1)
-    .max(500),
+    .max(2000),
 });
 
 export const Route = createFileRoute("/api/public/n8n/postings/upsert")({
@@ -30,9 +30,23 @@ export const Route = createFileRoute("/api/public/n8n/postings/upsert")({
         let parsed;
         try {
           parsed = bodySchema.parse(await request.json());
-        } catch {
-          return json({ error: "Invalid body" }, 400);
+        } catch (err) {
+          if (err instanceof z.ZodError) {
+            return json(
+              {
+                error: "Invalid body",
+                issues: err.issues.slice(0, 20).map((i) => ({
+                  path: i.path.join("."),
+                  message: i.message,
+                })),
+                issue_count: err.issues.length,
+              },
+              400,
+            );
+          }
+          return json({ error: "Invalid body", issues: [{ path: "", message: "Malformed JSON" }] }, 400);
         }
+
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
