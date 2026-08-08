@@ -43,6 +43,7 @@ type FeedRow = {
 function FeedPage() {
   const queryClient = useQueryClient();
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [applyError, setApplyError] = useState<{ postingId: string; message: string } | null>(null);
 
   const profileQuery = useQuery({
     queryKey: ["profile"],
@@ -126,9 +127,19 @@ function FeedPage() {
   async function apply(postingId: string) {
     if (!profile?.id) return;
     setPendingId(postingId);
-    await supabase.from("applications").insert({ user_id: profile.id, posting_id: postingId });
-    await queryClient.invalidateQueries({ queryKey: ["feed"] });
-    setPendingId(null);
+    setApplyError(null);
+    try {
+      const { error } = await supabase
+        .from("applications")
+        .insert({ user_id: profile.id, posting_id: postingId });
+      if (error) throw error;
+      await queryClient.invalidateQueries({ queryKey: ["feed"] });
+    } catch (err) {
+      console.error("[feed] apply failed", err);
+      setApplyError({ postingId, message: "Could not log this application. Try again." });
+    } finally {
+      setPendingId(null);
+    }
   }
 
   return (
@@ -179,6 +190,7 @@ function FeedPage() {
               key={row.id}
               row={row}
               pending={pendingId === row.id}
+              error={applyError?.postingId === row.id ? applyError.message : null}
               onApply={() => apply(row.id)}
             />
           ))}
@@ -191,10 +203,12 @@ function FeedPage() {
 function PostingCard({
   row,
   pending,
+  error,
   onApply,
 }: {
   row: FeedRow;
   pending: boolean;
+  error: string | null;
   onApply: () => void;
 }) {
   const days = daysSince(row.datePosted);
@@ -254,6 +268,7 @@ function PostingCard({
           "I applied"
         )}
       </button>
+      {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
     </li>
   );
 }
