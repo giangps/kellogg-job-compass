@@ -44,6 +44,19 @@ export const TARGET_LEVELS = [
   "Executive / VP+",
 ] as const;
 
+// Same 8-value list enforced by the check constraint on users.program and
+// alum_profiles.program (2026-08-10) -- keep these in sync.
+export const PROGRAMS = [
+  "Full-Time MBA",
+  "Part-Time MBA",
+  "Evening & Weekend MBA",
+  "1-Year MBA",
+  "MiM",
+  "MBAi",
+  "MMM",
+  "Other",
+] as const;
+
 export function daysSince(dateISO: string | null): number | null {
   if (!dateISO) return null;
   const then = new Date(`${dateISO}T00:00:00Z`).getTime();

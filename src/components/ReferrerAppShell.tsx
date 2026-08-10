@@ -5,14 +5,11 @@ import type { ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const navItems = [
-  { to: "/feed", label: "Feed" },
-  { to: "/dashboard", label: "My applications" },
-  { to: "/alumni", label: "Alumni network" },
-  { to: "/preferences", label: "Preferences" },
-  { to: "/profile", label: "My profile" },
+  { to: "/referrer/inbox", label: "Inbox" },
+  { to: "/referrer/profile", label: "My profile" },
 ] as const;
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function ReferrerAppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
 
   async function signOut() {
@@ -24,8 +21,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-20 border-b border-border bg-card/90 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
-          <Link to="/feed" className="text-sm font-semibold tracking-tight text-foreground">
-            Kellogg Recruiting Copilot
+          <Link
+            to="/referrer/inbox"
+            className="text-sm font-semibold tracking-tight text-foreground"
+          >
+            Kellogg Recruiting Copilot · Referrer
           </Link>
           <button
             onClick={signOut}

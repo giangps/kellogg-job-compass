@@ -11,9 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as ReferrerRouteRouteImport } from './routes/referrer/route'
+import { Route as AuthenticatedAlumniRouteImport } from './routes/_authenticated/alumni'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AuthenticatedPreferencesRouteImport } from './routes/_authenticated/preferences'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as ReferrerInboxRouteImport } from './routes/referrer/inbox'
+import { Route as ReferrerProfileRouteImport } from './routes/referrer/profile'
 import { Route as ApiPublicN8nCompaniesRouteImport } from './routes/api/public/n8n/companies'
 import { Route as ApiPublicN8nRescoreRouteImport } from './routes/api/public/n8n/rescore'
 import { Route as ApiPublicN8nPostingsClassificationRouteImport } from './routes/api/public/n8n/postings/classification'
@@ -27,6 +32,16 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ReferrerRouteRoute = ReferrerRouteRouteImport.update({
+  id: '/referrer',
+  path: '/referrer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAlumniRoute = AuthenticatedAlumniRouteImport.update({
+  id: '/alumni',
+  path: '/alumni',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
@@ -44,6 +59,21 @@ const AuthenticatedPreferencesRoute =
     path: '/preferences',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ReferrerInboxRoute = ReferrerInboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
+  getParentRoute: () => ReferrerRouteRoute,
+} as any)
+const ReferrerProfileRoute = ReferrerProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => ReferrerRouteRoute,
+} as any)
 const ApiPublicN8nCompaniesRoute = ApiPublicN8nCompaniesRouteImport.update({
   id: '/api/public/n8n/companies',
   path: '/api/public/n8n/companies',
@@ -69,9 +99,14 @@ const ApiPublicN8nPostingsUpsertRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/referrer': typeof ReferrerRouteRouteWithChildren
+  '/alumni': typeof AuthenticatedAlumniRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/preferences': typeof AuthenticatedPreferencesRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/referrer/inbox': typeof ReferrerInboxRoute
+  '/referrer/profile': typeof ReferrerProfileRoute
   '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
   '/api/public/n8n/rescore': typeof ApiPublicN8nRescoreRoute
   '/api/public/n8n/postings/classification': typeof ApiPublicN8nPostingsClassificationRoute
@@ -79,9 +114,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/referrer': typeof ReferrerRouteRouteWithChildren
+  '/alumni': typeof AuthenticatedAlumniRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/preferences': typeof AuthenticatedPreferencesRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/referrer/inbox': typeof ReferrerInboxRoute
+  '/referrer/profile': typeof ReferrerProfileRoute
   '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
   '/api/public/n8n/rescore': typeof ApiPublicN8nRescoreRoute
   '/api/public/n8n/postings/classification': typeof ApiPublicN8nPostingsClassificationRoute
@@ -91,9 +131,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/referrer': typeof ReferrerRouteRouteWithChildren
+  '/_authenticated/alumni': typeof AuthenticatedAlumniRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/preferences': typeof AuthenticatedPreferencesRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/referrer/inbox': typeof ReferrerInboxRoute
+  '/referrer/profile': typeof ReferrerProfileRoute
   '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
   '/api/public/n8n/rescore': typeof ApiPublicN8nRescoreRoute
   '/api/public/n8n/postings/classification': typeof ApiPublicN8nPostingsClassificationRoute
@@ -103,9 +148,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/referrer'
+    | '/alumni'
     | '/dashboard'
     | '/feed'
     | '/preferences'
+    | '/profile'
+    | '/referrer/inbox'
+    | '/referrer/profile'
     | '/api/public/n8n/companies'
     | '/api/public/n8n/rescore'
     | '/api/public/n8n/postings/classification'
@@ -113,9 +163,14 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/referrer'
+    | '/alumni'
     | '/dashboard'
     | '/feed'
     | '/preferences'
+    | '/profile'
+    | '/referrer/inbox'
+    | '/referrer/profile'
     | '/api/public/n8n/companies'
     | '/api/public/n8n/rescore'
     | '/api/public/n8n/postings/classification'
@@ -124,9 +179,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/referrer'
+    | '/_authenticated/alumni'
     | '/_authenticated/dashboard'
     | '/_authenticated/feed'
     | '/_authenticated/preferences'
+    | '/_authenticated/profile'
+    | '/referrer/inbox'
+    | '/referrer/profile'
     | '/api/public/n8n/companies'
     | '/api/public/n8n/rescore'
     | '/api/public/n8n/postings/classification'
@@ -136,6 +196,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  ReferrerRouteRoute: typeof ReferrerRouteRouteWithChildren
   ApiPublicN8nCompaniesRoute: typeof ApiPublicN8nCompaniesRoute
   ApiPublicN8nRescoreRoute: typeof ApiPublicN8nRescoreRoute
   ApiPublicN8nPostingsClassificationRoute: typeof ApiPublicN8nPostingsClassificationRoute
@@ -158,6 +219,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/referrer': {
+      id: '/referrer'
+      path: '/referrer'
+      fullPath: '/referrer'
+      preLoaderRoute: typeof ReferrerRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/alumni': {
+      id: '/_authenticated/alumni'
+      path: '/alumni'
+      fullPath: '/alumni'
+      preLoaderRoute: typeof AuthenticatedAlumniRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -178,6 +253,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/preferences'
       preLoaderRoute: typeof AuthenticatedPreferencesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/referrer/inbox': {
+      id: '/referrer/inbox'
+      path: '/inbox'
+      fullPath: '/referrer/inbox'
+      preLoaderRoute: typeof ReferrerInboxRouteImport
+      parentRoute: typeof ReferrerRouteRoute
+    }
+    '/referrer/profile': {
+      id: '/referrer/profile'
+      path: '/profile'
+      fullPath: '/referrer/profile'
+      preLoaderRoute: typeof ReferrerProfileRouteImport
+      parentRoute: typeof ReferrerRouteRoute
     }
     '/api/public/n8n/companies': {
       id: '/api/public/n8n/companies'
@@ -211,23 +307,42 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAlumniRoute: typeof AuthenticatedAlumniRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedPreferencesRoute: typeof AuthenticatedPreferencesRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAlumniRoute: AuthenticatedAlumniRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedPreferencesRoute: AuthenticatedPreferencesRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface ReferrerRouteRouteChildren {
+  ReferrerInboxRoute: typeof ReferrerInboxRoute
+  ReferrerProfileRoute: typeof ReferrerProfileRoute
+}
+
+const ReferrerRouteRouteChildren: ReferrerRouteRouteChildren = {
+  ReferrerInboxRoute: ReferrerInboxRoute,
+  ReferrerProfileRoute: ReferrerProfileRoute,
+}
+
+const ReferrerRouteRouteWithChildren = ReferrerRouteRoute._addFileChildren(
+  ReferrerRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  ReferrerRouteRoute: ReferrerRouteRouteWithChildren,
   ApiPublicN8nCompaniesRoute: ApiPublicN8nCompaniesRoute,
   ApiPublicN8nRescoreRoute: ApiPublicN8nRescoreRoute,
   ApiPublicN8nPostingsClassificationRoute:
@@ -237,3 +352,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

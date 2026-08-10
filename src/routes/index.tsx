@@ -27,10 +27,16 @@ export const Route = createFileRoute("/")({
 });
 
 type Mode = "signup" | "login";
+type Role = "job_seeker" | "referrer";
+
+function destinationFor(role: unknown) {
+  return role === "referrer" ? "/referrer/inbox" : "/feed";
+}
 
 function AuthPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>("signup");
+  const [role, setRole] = useState<Role>("job_seeker");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +45,9 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/feed", replace: true });
+      if (data.session) {
+        navigate({ to: destinationFor(data.session.user.user_metadata?.role), replace: true });
+      }
     });
   }, [navigate]);
 
@@ -48,7 +56,7 @@ function AuthPage() {
     setError(null);
     setNotice(null);
 
-    if (!isKelloggEmail(email)) {
+    if (mode === "signup" && role === "job_seeker" && !isKelloggEmail(email)) {
       setError(DOMAIN_ERROR);
       return;
     }
@@ -59,21 +67,27 @@ function AuthPage() {
         const { data, error: err } = await supabase.auth.signUp({
           email: email.trim(),
           password,
-          options: { emailRedirectTo: window.location.origin },
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: { role },
+          },
         });
         if (err) throw err;
         if (!data.session) {
-          setNotice("Check your Kellogg inbox to confirm your account, then sign in.");
+          setNotice("Check your inbox to confirm your account, then sign in.");
           return;
         }
-        navigate({ to: "/preferences", replace: true });
+        navigate({
+          to: role === "referrer" ? "/referrer/profile" : "/preferences",
+          replace: true,
+        });
       } else {
-        const { error: err } = await supabase.auth.signInWithPassword({
+        const { data, error: err } = await supabase.auth.signInWithPassword({
           email: email.trim(),
           password,
         });
         if (err) throw err;
-        navigate({ to: "/feed", replace: true });
+        navigate({ to: destinationFor(data.user.user_metadata?.role), replace: true });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -96,10 +110,37 @@ function AuthPage() {
           aggregate only — never names.
         </p>
 
-        <form onSubmit={onSubmit} className="mt-8 space-y-4">
+        {mode === "signup" && (
+          <div className="mt-6 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setRole("job_seeker")}
+              className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                role === "job_seeker"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-input text-muted-foreground hover:bg-accent"
+              }`}
+            >
+              I&apos;m job-hunting
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole("referrer")}
+              className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                role === "referrer"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-input text-muted-foreground hover:bg-accent"
+              }`}
+            >
+              I&apos;m an alum, willing to refer
+            </button>
+          </div>
+        )}
+
+        <form onSubmit={onSubmit} className="mt-6 space-y-4">
           <div className="space-y-1.5">
             <label htmlFor="email" className="text-sm font-medium text-foreground">
-              Kellogg email
+              {mode === "signup" && role === "referrer" ? "Personal email" : "Kellogg email"}
             </label>
             <input
               id="email"
@@ -108,7 +149,11 @@ function AuthPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@kellogg.northwestern.edu"
+              placeholder={
+                mode === "signup" && role === "referrer"
+                  ? "you@example.com"
+                  : "you@kellogg.northwestern.edu"
+              }
               className="w-full rounded-lg border border-input bg-card px-3 py-2.5 text-sm text-foreground outline-none transition-shadow placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -158,10 +203,18 @@ function AuthPage() {
           {mode === "signup" ? "Already have an account? Sign in" : "Need an account? Sign up"}
         </button>
 
-        <p className="mt-8 text-xs leading-relaxed text-muted-foreground">
-          Access is limited to <span className="text-foreground">@kellogg.northwestern.edu</span> and{" "}
-          <span className="text-foreground">@kelloggalumni.northwestern.edu</span> addresses.
-        </p>
+        {mode === "signup" && role === "job_seeker" && (
+          <p className="mt-8 text-xs leading-relaxed text-muted-foreground">
+            Access is limited to{" "}
+            <span className="text-foreground">@kellogg.northwestern.edu</span> addresses.
+          </p>
+        )}
+        {mode === "signup" && role === "referrer" && (
+          <p className="mt-8 text-xs leading-relaxed text-muted-foreground">
+            Open to any Kellogg alum willing to field an occasional coffee chat or referral
+            request — registering is a good-faith commitment, not a verified credential.
+          </p>
+        )}
       </div>
     </div>
   );

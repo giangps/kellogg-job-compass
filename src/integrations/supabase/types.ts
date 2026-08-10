@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      alum_profiles: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          email: string
+          function: string | null
+          graduation_year: number | null
+          id: string
+          linkedin_url: string | null
+          name: string | null
+          phone: string | null
+          program: string | null
+          seniority: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          email: string
+          function?: string | null
+          graduation_year?: number | null
+          id: string
+          linkedin_url?: string | null
+          name?: string | null
+          phone?: string | null
+          program?: string | null
+          seniority?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          email?: string
+          function?: string | null
+          graduation_year?: number | null
+          id?: string
+          linkedin_url?: string | null
+          name?: string | null
+          phone?: string | null
+          program?: string | null
+          seniority?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alum_profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       alumni_contacts: {
         Row: {
           company_id: string
@@ -82,6 +132,54 @@ export type Database = {
           {
             foreignKeyName: "applications_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      connection_requests: {
+        Row: {
+          alum_id: string
+          id: string
+          job_seeker_id: string
+          outcome: string | null
+          outcome_reported_at: string | null
+          requested_at: string
+          responded_at: string | null
+          status: Database["public"]["Enums"]["connection_status_enum"]
+        }
+        Insert: {
+          alum_id: string
+          id?: string
+          job_seeker_id: string
+          outcome?: string | null
+          outcome_reported_at?: string | null
+          requested_at?: string
+          responded_at?: string | null
+          status?: Database["public"]["Enums"]["connection_status_enum"]
+        }
+        Update: {
+          alum_id?: string
+          id?: string
+          job_seeker_id?: string
+          outcome?: string | null
+          outcome_reported_at?: string | null
+          requested_at?: string
+          responded_at?: string | null
+          status?: Database["public"]["Enums"]["connection_status_enum"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connection_requests_alum_id_fkey"
+            columns: ["alum_id"]
+            isOneToOne: false
+            referencedRelation: "alum_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connection_requests_job_seeker_id_fkey"
+            columns: ["job_seeker_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -201,6 +299,7 @@ export type Database = {
           id: string
           kellogg_email: string
           name: string | null
+          program: string | null
           target_function: string | null
           target_level: string | null
         }
@@ -210,6 +309,7 @@ export type Database = {
           id: string
           kellogg_email: string
           name?: string | null
+          program?: string | null
           target_function?: string | null
           target_level?: string | null
         }
@@ -219,13 +319,141 @@ export type Database = {
           id?: string
           kellogg_email?: string
           name?: string | null
+          program?: string | null
           target_function?: string | null
           target_level?: string | null
         }
         Relationships: []
       }
+      user_target_roles: {
+        Row: {
+          created_at: string
+          function: string
+          id: string
+          level: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          function: string
+          id?: string
+          level: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          function?: string
+          id?: string
+          level?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_target_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_work_experience: {
+        Row: {
+          company_name: string
+          created_at: string
+          end_date: string | null
+          id: string
+          role_title: string
+          start_date: string | null
+          user_id: string
+        }
+        Insert: {
+          company_name: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          role_title: string
+          start_date?: string | null
+          user_id: string
+        }
+        Update: {
+          company_name?: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          role_title?: string
+          start_date?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_work_experience_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
+      alum_contact_unlocked: {
+        Row: {
+          alum_id: string | null
+          email: string | null
+          phone: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connection_requests_alum_id_fkey"
+            columns: ["alum_id"]
+            isOneToOne: false
+            referencedRelation: "alum_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      alum_directory: {
+        Row: {
+          company_id: string | null
+          function: string | null
+          graduation_year: number | null
+          id: string | null
+          linkedin_url: string | null
+          name: string | null
+          program: string | null
+          seniority: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alum_profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      connection_requests_for_alum: {
+        Row: {
+          id: string | null
+          job_seeker_id: string | null
+          job_seeker_name: string | null
+          outcome: string | null
+          requested_at: string | null
+          responded_at: string | null
+          status: Database["public"]["Enums"]["connection_status_enum"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connection_requests_job_seeker_id_fkey"
+            columns: ["job_seeker_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posting_application_counts: {
         Row: {
           applied_count: number | null
@@ -247,6 +475,7 @@ export type Database = {
     }
     Enums: {
       ats_type_enum: "greenhouse" | "lever" | "other"
+      connection_status_enum: "pending" | "accepted" | "declined"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -375,6 +604,7 @@ export const Constants = {
   public: {
     Enums: {
       ats_type_enum: ["greenhouse", "lever", "other"],
+      connection_status_enum: ["pending", "accepted", "declined"],
     },
   },
 } as const
