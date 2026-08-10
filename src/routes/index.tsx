@@ -1,6 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Linkedin, Network } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import founderPhoto from "@/assets/gianfranco.jpg";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { supabase } from "@/integrations/supabase/client";
 import { DOMAIN_ERROR, isKelloggEmail } from "@/lib/kellogg";
 
@@ -46,7 +54,7 @@ function AuthPage() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
-        navigate({ to: destinationFor(data.session.user.user_metadata?.role), replace: true });
+        navigate({ to: destinationFor(data.session.user.user_metadata?.['role']), replace: true });
       }
     });
   }, [navigate]);
@@ -87,7 +95,7 @@ function AuthPage() {
           password,
         });
         if (err) throw err;
-        navigate({ to: destinationFor(data.user.user_metadata?.role), replace: true });
+        navigate({ to: destinationFor(data.user.user_metadata?.['role']), replace: true });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -97,18 +105,30 @@ function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-sm">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+    <div className="min-h-screen bg-background px-4 py-6">
+      <header className="mx-auto flex w-full max-w-3xl items-center gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+          <Network className="h-5 w-5" aria-hidden="true" />
+        </span>
+        <span className="font-kellogg text-sm font-bold leading-tight tracking-tight text-primary">
+          Kellogg MBA
+          <br />
+          Network
+        </span>
+      </header>
+
+      <div className="mx-auto mt-10 w-full max-w-sm">
+        <p className="font-kellogg text-center text-xs font-semibold uppercase tracking-[0.18em] text-primary">
           Kellogg cohort · private
         </p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
+        <h1 className="mt-2 text-center font-kellogg text-3xl font-extrabold tracking-tight text-primary">
           Recruiting Copilot
         </h1>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          One shared feed for ~30 Kellogg MBA grads job-hunting together. Signals are
-          aggregate only — never names.
+        <p className="mt-3 text-center text-sm leading-relaxed text-muted-foreground">
+          A platform that connects Kellogg alum to Kellogg MBAs looking for a job — Go
+          WildCats!
         </p>
+
 
         {mode === "signup" && (
           <div className="mt-6 grid grid-cols-2 gap-2">
@@ -216,6 +236,98 @@ function AuthPage() {
           </p>
         )}
       </div>
+
+      <section className="mx-auto mt-14 w-full max-w-2xl pb-12">
+        <h2 className="font-kellogg text-center text-lg font-bold tracking-tight text-primary">
+          About
+        </h2>
+        <Accordion type="single" collapsible className="mt-4">
+          <AccordionItem value="team">
+            <AccordionTrigger className="font-kellogg text-sm font-semibold">
+              About the team
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                <img
+                  src={founderPhoto}
+                  alt="Gianfranco Senaja, Kellogg MBA 26'"
+                  loading="lazy"
+                  width={512}
+                  height={512}
+                  className="h-24 w-24 shrink-0 rounded-2xl object-cover"
+                />
+                <div className="space-y-2">
+                  <p className="font-kellogg text-sm font-semibold text-foreground">
+                    Gianfranco Senaja — Kellogg MBA 26&apos;
+                  </p>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    Gianfranco is a Kellogg MBA candidate (Class of 2026) who built this tool
+                    while recruiting alongside his own classmates. His background spans
+                    strategy, product and growth work, and he spends most of his time thinking
+                    about how a tight-knit alumni network can be turned into a real,
+                    repeatable advantage for job seekers instead of a pile of cold outreach.
+                  </p>
+                  <a
+                    href="https://www.linkedin.com/in/gianfranco-senaja/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline"
+                  >
+                    <Linkedin className="h-4 w-4" aria-hidden="true" />
+                    Connect on LinkedIn
+                  </a>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="platform">
+            <AccordionTrigger className="font-kellogg text-sm font-semibold">
+              About the platform
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+                <p>
+                  Kellogg MBA Network turns the alumni network into your job-search engine.
+                  You tell us the function and level you&apos;re targeting, and we surface the
+                  roles where the network can actually get you a connection, an intro or a
+                  referral.
+                </p>
+                <ol className="list-decimal space-y-2 pl-5">
+                  <li>
+                    <span className="text-foreground">Set your target.</span> Pick a function
+                    and a level — that&apos;s your filter for everything you see.
+                  </li>
+                  <li>
+                    <span className="text-foreground">Get a prioritized feed.</span> Fresh
+                    postings are ranked by how recent they are and how strong the alumni
+                    presence is at that company in your function.
+                  </li>
+                  <li>
+                    <span className="text-foreground">See the network signal.</span> Each card
+                    shows how many people in the cohort have applied and whether alumni
+                    overlap exists — counts only, never names.
+                  </li>
+                  <li>
+                    <span className="text-foreground">Log your applications.</span> Tap
+                    &ldquo;I applied&rdquo; to track your pipeline and help the cohort see
+                    where momentum is building.
+                  </li>
+                  <li>
+                    <span className="text-foreground">Reach the alumni.</span> Alumni who
+                    opt in are on the other side, ready to field coffee chats, intros and
+                    referral requests.
+                  </li>
+                </ol>
+                <p>
+                  Privacy is the default: individual activity is never shown to anyone. You
+                  only ever see aggregate counts, and alumni contact details stay protected.
+                </p>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </section>
     </div>
   );
 }

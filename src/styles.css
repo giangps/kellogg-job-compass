@@ -19,6 +19,8 @@
  */
 
 @theme inline {
+  /* Kellogg School of Management brand-style grotesque (Akkurat substitute) */
+  --font-kellogg: "Archivo", "Helvetica Neue", Arial, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

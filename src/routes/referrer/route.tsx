@@ -8,7 +8,7 @@ export const Route = createFileRoute("/referrer")({
   beforeLoad: async () => {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/" });
-    if (data.user.user_metadata?.role !== "referrer") {
+    if (data.user.user_metadata?.['role'] !== "referrer") {
       throw redirect({ to: "/feed" });
     }
     return { user: data.user };
