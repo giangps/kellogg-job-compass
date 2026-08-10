@@ -97,18 +97,30 @@ function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-sm">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+    <div className="min-h-screen bg-background px-4 py-6">
+      <header className="mx-auto flex w-full max-w-3xl items-center gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+          <Network className="h-5 w-5" aria-hidden="true" />
+        </span>
+        <span className="font-kellogg text-sm font-bold leading-tight tracking-tight text-primary">
+          Kellogg MBA
+          <br />
+          Network
+        </span>
+      </header>
+
+      <div className="mx-auto mt-10 w-full max-w-sm">
+        <p className="font-kellogg text-center text-xs font-semibold uppercase tracking-[0.18em] text-primary">
           Kellogg cohort · private
         </p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
+        <h1 className="mt-2 text-center font-kellogg text-3xl font-extrabold tracking-tight text-primary">
           Recruiting Copilot
         </h1>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          One shared feed for ~30 Kellogg MBA grads job-hunting together. Signals are
-          aggregate only — never names.
+        <p className="mt-3 text-center text-sm leading-relaxed text-muted-foreground">
+          A platform that connects Kellogg alum to Kellogg MBAs looking for a job — Go
+          WildCats!
         </p>
+
 
         {mode === "signup" && (
           <div className="mt-6 grid grid-cols-2 gap-2">
