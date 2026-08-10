@@ -46,7 +46,7 @@ function AuthPage() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
-        navigate({ to: destinationFor(data.session.user.user_metadata?.role), replace: true });
+        navigate({ to: destinationFor(data.session.user.user_metadata?.['role']), replace: true });
       }
     });
   }, [navigate]);
@@ -87,7 +87,7 @@ function AuthPage() {
           password,
         });
         if (err) throw err;
-        navigate({ to: destinationFor(data.user.user_metadata?.role), replace: true });
+        navigate({ to: destinationFor(data.user.user_metadata?.['role']), replace: true });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
