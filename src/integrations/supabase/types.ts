@@ -138,6 +138,36 @@ export type Database = {
           },
         ]
       }
+      companies: {
+        Row: {
+          active: boolean
+          ats_feed_url: string | null
+          ats_type: Database["public"]["Enums"]["ats_type_enum"]
+          created_at: string
+          id: string
+          monitoring_method: string
+          name: string
+        }
+        Insert: {
+          active?: boolean
+          ats_feed_url?: string | null
+          ats_type: Database["public"]["Enums"]["ats_type_enum"]
+          created_at?: string
+          id?: string
+          monitoring_method?: string
+          name: string
+        }
+        Update: {
+          active?: boolean
+          ats_feed_url?: string | null
+          ats_type?: Database["public"]["Enums"]["ats_type_enum"]
+          created_at?: string
+          id?: string
+          monitoring_method?: string
+          name?: string
+        }
+        Relationships: []
+      }
       connection_requests: {
         Row: {
           alum_id: string
@@ -174,6 +204,13 @@ export type Database = {
             foreignKeyName: "connection_requests_alum_id_fkey"
             columns: ["alum_id"]
             isOneToOne: false
+            referencedRelation: "alum_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connection_requests_alum_id_fkey"
+            columns: ["alum_id"]
+            isOneToOne: false
             referencedRelation: "alum_profiles"
             referencedColumns: ["id"]
           },
@@ -185,36 +222,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      companies: {
-        Row: {
-          active: boolean
-          ats_feed_url: string | null
-          ats_type: Database["public"]["Enums"]["ats_type_enum"]
-          created_at: string
-          id: string
-          monitoring_method: string
-          name: string
-        }
-        Insert: {
-          active?: boolean
-          ats_feed_url?: string | null
-          ats_type: Database["public"]["Enums"]["ats_type_enum"]
-          created_at?: string
-          id?: string
-          monitoring_method?: string
-          name: string
-        }
-        Update: {
-          active?: boolean
-          ats_feed_url?: string | null
-          ats_type?: Database["public"]["Enums"]["ats_type_enum"]
-          created_at?: string
-          id?: string
-          monitoring_method?: string
-          name?: string
-        }
-        Relationships: []
       }
       posting_alumni_overlap: {
         Row: {
@@ -292,39 +299,6 @@ export type Database = {
           },
         ]
       }
-      users: {
-        Row: {
-          created_at: string
-          graduation_year: number | null
-          id: string
-          kellogg_email: string
-          name: string | null
-          program: string | null
-          target_function: string | null
-          target_level: string | null
-        }
-        Insert: {
-          created_at?: string
-          graduation_year?: number | null
-          id: string
-          kellogg_email: string
-          name?: string | null
-          program?: string | null
-          target_function?: string | null
-          target_level?: string | null
-        }
-        Update: {
-          created_at?: string
-          graduation_year?: number | null
-          id?: string
-          kellogg_email?: string
-          name?: string | null
-          program?: string | null
-          target_function?: string | null
-          target_level?: string | null
-        }
-        Relationships: []
-      }
       user_target_roles: {
         Row: {
           created_at: string
@@ -395,6 +369,39 @@ export type Database = {
           },
         ]
       }
+      users: {
+        Row: {
+          created_at: string
+          graduation_year: number | null
+          id: string
+          kellogg_email: string
+          name: string | null
+          program: string | null
+          target_function: string | null
+          target_level: string | null
+        }
+        Insert: {
+          created_at?: string
+          graduation_year?: number | null
+          id: string
+          kellogg_email: string
+          name?: string | null
+          program?: string | null
+          target_function?: string | null
+          target_level?: string | null
+        }
+        Update: {
+          created_at?: string
+          graduation_year?: number | null
+          id?: string
+          kellogg_email?: string
+          name?: string | null
+          program?: string | null
+          target_function?: string | null
+          target_level?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       alum_contact_unlocked: {
@@ -404,6 +411,13 @@ export type Database = {
           phone: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "connection_requests_alum_id_fkey"
+            columns: ["alum_id"]
+            isOneToOne: false
+            referencedRelation: "alum_directory"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "connection_requests_alum_id_fkey"
             columns: ["alum_id"]
@@ -423,6 +437,26 @@ export type Database = {
           name: string | null
           program: string | null
           seniority: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          function?: string | null
+          graduation_year?: number | null
+          id?: string | null
+          linkedin_url?: string | null
+          name?: string | null
+          program?: string | null
+          seniority?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          function?: string | null
+          graduation_year?: number | null
+          id?: string | null
+          linkedin_url?: string | null
+          name?: string | null
+          program?: string | null
+          seniority?: string | null
         }
         Relationships: [
           {
