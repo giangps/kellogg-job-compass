@@ -1,4 +1,4 @@
-# Kellogg Career Compass
+# Kellogg Recruiting Copilot
 
 Build a web app called Kellogg Recruiting Copilot for a small cohort of
 ~30 Kellogg MBA graduates job-hunting together.

@@ -111,9 +111,9 @@ function AuthPage() {
           <Network className="h-5 w-5" aria-hidden="true" />
         </span>
         <span className="font-kellogg text-sm font-bold leading-tight tracking-tight text-primary">
-          Kellogg MBA
+          Kellogg
           <br />
-          Network
+          Recruiting Copilot
         </span>
       </header>
 
@@ -264,9 +264,10 @@ function AuthPage() {
                     Gianfranco is a Kellogg MBA graduate (Class of 2026) who built this tool
                     while recruiting alongside his own classmates. His background is in
                     commercial and product marketing roles across hardware and CPG, including
-                    Samsung, Epson, and a PepsiCo bottler in Latin America. He built Career
-                    Compass because he kept seeing the same problem in his own search: a strong
-                    alumni network with no easy way to see where it actually mattered. His
+                    Samsung, Epson, and a PepsiCo bottler in Latin America. He built Kellogg
+                    Recruiting Copilot because he kept seeing the same problem in his own
+                    search: a strong alumni network with no easy way to see where it actually
+                    mattered. His
                     focus is turning that network into a repeatable advantage for job seekers,
                     instead of a pile of cold outreach.
                   </p>
