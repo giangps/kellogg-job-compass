@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Users, GraduationCap } from "lucide-react";
+import { Check, Users, GraduationCap, ExternalLink, X } from "lucide-react";
 import { useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { daysSince } from "@/lib/kellogg";
+import { CompanyLogo } from "@/components/CompanyLogo";
 
 export const Route = createFileRoute("/_authenticated/feed")({
   head: () => ({
@@ -34,6 +35,8 @@ type FeedRow = {
   datePosted: string | null;
   priorityScore: number;
   company: string;
+  logoUrl: string | null;
+  description: string | null;
   sourceUrl: string;
   overlapCount: number;
   appliedCount: number;
@@ -44,6 +47,7 @@ function FeedPage() {
   const queryClient = useQueryClient();
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [applyError, setApplyError] = useState<{ postingId: string; message: string } | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const profileQuery = useQuery({
     queryKey: ["profile"],
@@ -72,7 +76,7 @@ function FeedPage() {
       const { data: postings, error } = await supabase
         .from("postings")
         .select(
-          "id, title, location, date_posted, priority_score, source_url, companies(name), posting_alumni_overlap(overlap_count)",
+          "id, title, location, date_posted, priority_score, source_url, description, companies(name, logo_url), posting_alumni_overlap(overlap_count)",
         )
         .eq("function_tag", targetFunction!)
         .eq("level_tag", targetLevel!)
@@ -115,6 +119,8 @@ function FeedPage() {
           datePosted: p.date_posted,
           priorityScore: Number(p.priority_score),
           company: company?.name ?? "—",
+          logoUrl: company?.logo_url ?? null,
+          description: p.description ?? null,
           sourceUrl: p.source_url,
           overlapCount: overlap?.overlap_count ?? 0,
           appliedCount: Math.max(0, raw - (viewerApplied ? 1 : 0)),
@@ -123,6 +129,8 @@ function FeedPage() {
       });
     },
   });
+
+  const selected = (feedQuery.data ?? []).find((r) => r.id === selectedId) ?? null;
 
   async function apply(postingId: string) {
     if (!profile?.id) return;
@@ -192,10 +200,71 @@ function FeedPage() {
               pending={pendingId === row.id}
               error={applyError?.postingId === row.id ? applyError.message : null}
               onApply={() => apply(row.id)}
+              onOpen={() => setSelectedId(row.id)}
             />
           ))}
         </ul>
       )}
+
+      {selected && <JobPanel row={selected} onClose={() => setSelectedId(null)} />}
+    </div>
+  );
+}
+
+function JobPanel({ row, onClose }: { row: FeedRow; onClose: () => void }) {
+  const days = daysSince(row.datePosted);
+
+  return (
+    <div className="fixed inset-0 z-40 flex justify-end">
+      <button
+        aria-label="Close job details"
+        onClick={onClose}
+        className="absolute inset-0 bg-foreground/30 backdrop-blur-sm"
+      />
+      <aside className="relative flex h-full w-full max-w-md flex-col border-l border-border bg-card shadow-xl">
+        <div className="flex items-start gap-3 border-b border-border p-4">
+          <CompanyLogo name={row.company} logoUrl={row.logoUrl} sourceUrl={row.sourceUrl} />
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-muted-foreground">{row.company}</p>
+            <h2 className="text-base font-semibold leading-snug text-foreground">{row.title}</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {[row.location, days === null ? null : `${days}d ago`].filter(Boolean).join(" · ")}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <X className="size-4" aria-hidden />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4">
+          {row.description ? (
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+              {row.description}
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No description was captured for this posting — open the application site for the full
+              job description.
+            </p>
+          )}
+        </div>
+
+        <div className="border-t border-border p-4">
+          <a
+            href={row.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            Go to application site
+            <ExternalLink className="size-3.5" aria-hidden />
+          </a>
+        </div>
+      </aside>
     </div>
   );
 }
@@ -205,32 +274,32 @@ function PostingCard({
   pending,
   error,
   onApply,
+  onOpen,
 }: {
   row: FeedRow;
   pending: boolean;
   error: string | null;
   onApply: () => void;
+  onOpen: () => void;
 }) {
   const days = daysSince(row.datePosted);
 
   return (
     <li className="rounded-xl border border-border bg-card p-4">
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-sm font-medium text-foreground">{row.company}</p>
-          <h2 className="mt-0.5 text-base font-semibold leading-snug text-foreground">
-            <a
-              href={row.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:underline"
-            >
-              {row.title}
-            </a>
-          </h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {[row.location, days === null ? null : `${days}d ago`].filter(Boolean).join(" · ")}
-          </p>
+        <div className="flex min-w-0 gap-3">
+          <CompanyLogo name={row.company} logoUrl={row.logoUrl} sourceUrl={row.sourceUrl} />
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-foreground">{row.company}</p>
+            <h2 className="mt-0.5 text-base font-semibold leading-snug text-foreground">
+              <button onClick={onOpen} className="text-left hover:text-primary hover:underline">
+                {row.title}
+              </button>
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {[row.location, days === null ? null : `${days}d ago`].filter(Boolean).join(" · ")}
+            </p>
+          </div>
         </div>
         <div className="shrink-0 rounded-lg bg-primary/10 px-2.5 py-1.5 text-center">
           <p className="text-sm font-semibold leading-none text-primary">{row.priorityScore}</p>
