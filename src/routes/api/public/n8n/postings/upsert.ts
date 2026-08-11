@@ -13,6 +13,7 @@ const bodySchema = z.object({
           .regex(/^\d{4}-\d{2}-\d{2}$/)
           .nullish(),
         source_url: z.string().trim().url().max(2000),
+        description: z.string().trim().max(20000).nullish(),
       }),
     )
     .min(1)
@@ -81,6 +82,7 @@ export const Route = createFileRoute("/api/public/n8n/postings/upsert")({
           location: p.location ?? null,
           date_posted: p.date_posted ?? null,
           source_url: p.source_url,
+          description: p.description ?? null,
         }));
 
         const results: { id: string; source_url: string; is_new: boolean }[] = [];
