@@ -1,0 +1,224 @@
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+
+import { supabase } from "@/integrations/supabase/client";
+
+export const Route = createFileRoute("/_authenticated/admin")({
+  beforeLoad: async () => {
+    const { data: auth } = await supabase.auth.getUser();
+    if (!auth.user) throw redirect({ to: "/" });
+    const { data: profile } = await supabase
+      .from("users")
+      .select("is_admin")
+      .eq("id", auth.user.id)
+      .maybeSingle();
+    // is_admin isn't in the generated types yet -- see apply_admin_flag.sql.
+    if (!(profile as { is_admin: boolean } | null)?.is_admin) throw redirect({ to: "/feed" });
+  },
+  head: () => ({
+    meta: [
+      { title: "Admin — Kellogg Recruiting Copilot" },
+      { name: "description", content: "Founder-only KPI dashboard." },
+    ],
+  }),
+  component: AdminPage,
+});
+
+type Metrics = {
+  generatedAt: string;
+  signups: {
+    totalJobSeekers: number;
+    totalReferrers: number;
+    jobSeekersWithPrefs: number;
+    jobSeekersWithProfile: number;
+    referrersWithProfile: number;
+    newJobSeekers7d: number;
+    newReferrers7d: number;
+  };
+  postings: {
+    totalPostings: number;
+    classifiedPostings: number;
+    postingsWithDescription: number;
+    postingsIngested24h: number;
+    postingsIngested7d: number;
+    perCompany: { name: string; active: boolean; postings: number }[];
+  };
+  applications: {
+    totalApplications: number;
+    applications7d: number;
+    distinctApplicants: number;
+    pctJobSeekersWhoApplied: number | null;
+    networkAssistedApplications: number;
+    pctNetworkAssisted: number | null;
+  };
+  referrers: {
+    totalConnectionRequests: number;
+    pending: number;
+    accepted: number;
+    declined: number;
+    acceptanceRate: number | null;
+    postingsWithOverlap: number;
+    pctPostingsWithOverlap: number | null;
+  };
+};
+
+function pct(n: number | null): string {
+  if (n === null) return "—";
+  return `${Math.round(n * 100)}%`;
+}
+
+function AdminPage() {
+  const metricsQuery = useQuery({
+    queryKey: ["admin-metrics"],
+    queryFn: async (): Promise<Metrics> => {
+      const { data: session } = await supabase.auth.getSession();
+      const token = session.session?.access_token;
+      if (!token) throw new Error("Not signed in");
+      const res = await fetch("/api/admin/metrics", {
+        headers: { authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`Metrics request failed (${res.status})`);
+      return res.json();
+    },
+  });
+
+  const m = metricsQuery.data;
+
+  return (
+    <div>
+      <h1 className="text-xl font-semibold tracking-tight text-foreground">Admin</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Core KPIs across the whole cohort, refreshed on load.
+      </p>
+
+      {metricsQuery.isLoading ? (
+        <p className="mt-6 text-sm text-muted-foreground">Loading…</p>
+      ) : metricsQuery.error || !m ? (
+        <p className="mt-6 text-sm text-destructive">Could not load metrics. Try again shortly.</p>
+      ) : (
+        <div className="mt-6 space-y-8">
+          <Section title="Signups & activation">
+            <StatGrid>
+              <Stat label="Job seekers" value={m.signups.totalJobSeekers} />
+              <Stat label="Referrers (alumni)" value={m.signups.totalReferrers} />
+              <Stat
+                label="Job seekers with prefs set"
+                value={m.signups.jobSeekersWithPrefs}
+                sub={`of ${m.signups.totalJobSeekers}`}
+              />
+              <Stat
+                label="Job seekers w/ profile"
+                value={m.signups.jobSeekersWithProfile}
+                sub={`of ${m.signups.totalJobSeekers}`}
+              />
+              <Stat
+                label="Referrers w/ profile"
+                value={m.signups.referrersWithProfile}
+                sub={`of ${m.signups.totalReferrers}`}
+              />
+              <Stat label="New job seekers (7d)" value={m.signups.newJobSeekers7d} />
+              <Stat label="New referrers (7d)" value={m.signups.newReferrers7d} />
+            </StatGrid>
+          </Section>
+
+          <Section title="Posting pipeline health">
+            <StatGrid>
+              <Stat label="Total postings" value={m.postings.totalPostings} />
+              <Stat
+                label="Classified"
+                value={m.postings.classifiedPostings}
+                sub={`of ${m.postings.totalPostings}`}
+              />
+              <Stat
+                label="With description"
+                value={m.postings.postingsWithDescription}
+                sub={`of ${m.postings.totalPostings}`}
+              />
+              <Stat label="Ingested last 24h" value={m.postings.postingsIngested24h} />
+              <Stat label="Ingested last 7d" value={m.postings.postingsIngested7d} />
+            </StatGrid>
+
+            <p className="mt-5 text-xs font-medium text-muted-foreground">By company</p>
+            <ul className="mt-2 space-y-1">
+              {m.postings.perCompany.map((c) => (
+                <li
+                  key={c.name}
+                  className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-1.5 text-sm"
+                >
+                  <span className={c.active ? "text-foreground" : "text-muted-foreground"}>
+                    {c.name}
+                    {!c.active && <span className="ml-1.5 text-xs">(inactive)</span>}
+                  </span>
+                  <span className="font-medium text-foreground">{c.postings}</span>
+                </li>
+              ))}
+            </ul>
+          </Section>
+
+          <Section title="Applications logged">
+            <StatGrid>
+              <Stat label="Total applications" value={m.applications.totalApplications} />
+              <Stat label="Last 7d" value={m.applications.applications7d} />
+              <Stat
+                label="Job seekers who applied"
+                value={m.applications.distinctApplicants}
+                sub={pct(m.applications.pctJobSeekersWhoApplied)}
+              />
+              <Stat
+                label="Network-assisted"
+                value={m.applications.networkAssistedApplications}
+                sub={`${pct(m.applications.pctNetworkAssisted)} of applications`}
+              />
+            </StatGrid>
+          </Section>
+
+          <Section title="Referrer engagement">
+            <StatGrid>
+              <Stat label="Connection requests" value={m.referrers.totalConnectionRequests} />
+              <Stat label="Pending" value={m.referrers.pending} />
+              <Stat label="Accepted" value={m.referrers.accepted} />
+              <Stat label="Declined" value={m.referrers.declined} />
+              <Stat
+                label="Acceptance rate"
+                value={pct(m.referrers.acceptanceRate)}
+                sub="of responded requests"
+              />
+              <Stat
+                label="Postings with overlap"
+                value={m.referrers.postingsWithOverlap}
+                sub={pct(m.referrers.pctPostingsWithOverlap)}
+              />
+            </StatGrid>
+          </Section>
+
+          <p className="text-xs text-muted-foreground">
+            Generated {new Date(m.generatedAt).toLocaleString()}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+      <div className="mt-3">{children}</div>
+    </section>
+  );
+}
+
+function StatGrid({ children }: { children: React.ReactNode }) {
+  return <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{children}</div>;
+}
+
+function Stat({ label, value, sub }: { label: string; value: number | string; sub?: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4">
+      <p className="text-2xl font-semibold tracking-tight text-foreground">{value}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{label}</p>
+      {sub && <p className="mt-0.5 text-[11px] text-muted-foreground/70">{sub}</p>}
+    </div>
+  );
+}

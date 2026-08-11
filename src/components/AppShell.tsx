@@ -1,10 +1,11 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { LogOut } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 
-const navItems = [
+const baseNavItems = [
   { to: "/feed", label: "Feed" },
   { to: "/dashboard", label: "My applications" },
   { to: "/alumni", label: "Alumni network" },
@@ -14,6 +15,25 @@ const navItems = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
+
+  const isAdminQuery = useQuery({
+    queryKey: ["is-admin"],
+    queryFn: async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) return false;
+      const { data } = await supabase
+        .from("users")
+        .select("is_admin")
+        .eq("id", auth.user.id)
+        .maybeSingle();
+      // is_admin isn't in the generated types yet -- see apply_admin_flag.sql.
+      return Boolean((data as { is_admin: boolean } | null)?.is_admin);
+    },
+  });
+
+  const navItems = isAdminQuery.data
+    ? [...baseNavItems, { to: "/admin", label: "Admin" } as const]
+    : baseNavItems;
 
   async function signOut() {
     await supabase.auth.signOut();
