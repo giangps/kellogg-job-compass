@@ -1,10 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { TARGET_FUNCTIONS } from "@/lib/kellogg";
+import { UserAvatar } from "@/components/UserAvatar";
 
 export const Route = createFileRoute("/_authenticated/alumni")({
   head: () => ({
@@ -26,6 +27,7 @@ type AlumRow = {
   id: string;
   name: string | null;
   linkedinUrl: string | null;
+  avatarUrl: string | null;
   companyId: string | null;
   companyName: string;
   function: string | null;
@@ -78,7 +80,9 @@ function AlumniPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("alum_directory")
-        .select("id, name, linkedin_url, company_id, function, seniority, program, graduation_year");
+        .select(
+          "id, name, linkedin_url, avatar_url, company_id, function, seniority, program, graduation_year",
+        );
       if (error) throw error;
       return data ?? [];
     },
@@ -135,6 +139,7 @@ function AlumniPage() {
         id: a.id!,
         name: a.name,
         linkedinUrl: a.linkedin_url,
+        avatarUrl: a.avatar_url,
         companyId: a.company_id,
         companyName: a.company_id ? (companyNameById.get(a.company_id) ?? "—") : "—",
         function: a.function,
@@ -259,9 +264,16 @@ function AlumCard({
 }) {
   return (
     <li className="rounded-xl border border-border bg-card p-4">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start gap-3">
+        <UserAvatar path={alum.avatarUrl} name={alum.name} className="size-11" />
         <div className="min-w-0">
-          <p className="text-sm font-medium text-foreground">{alum.name}</p>
+          <Link
+            to="/alum/$alumId"
+            params={{ alumId: alum.id }}
+            className="text-sm font-medium text-foreground hover:text-primary hover:underline"
+          >
+            {alum.name}
+          </Link>
           <p className="mt-0.5 text-xs text-muted-foreground">
             {[alum.companyName, alum.function, alum.seniority].filter(Boolean).join(" · ")}
           </p>
