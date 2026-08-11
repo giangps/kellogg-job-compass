@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Linkedin, Network } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import founderPhoto from "@/assets/gianfranco.jpg";
+import founderPhoto from "@/assets/gianfranco-photo.asset.json";
 import {
   Accordion,
   AccordionContent,
@@ -249,8 +249,8 @@ function AuthPage() {
             <AccordionContent>
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                 <img
-                  src={founderPhoto}
-                  alt="Gianfranco Senaja, Kellogg MBA 26'"
+                  src={founderPhoto.url}
+                  alt="Gianfranco Senaja, Kellogg MBA '26"
                   loading="lazy"
                   width={512}
                   height={512}
@@ -258,14 +258,17 @@ function AuthPage() {
                 />
                 <div className="space-y-2">
                   <p className="font-kellogg text-sm font-semibold text-foreground">
-                    Gianfranco Senaja — Kellogg MBA 26&apos;
+                    Gianfranco Senaja — Kellogg MBA &apos;26
                   </p>
                   <p className="text-sm leading-relaxed text-muted-foreground">
-                    Gianfranco is a Kellogg MBA candidate (Class of 2026) who built this tool
-                    while recruiting alongside his own classmates. His background spans
-                    strategy, product and growth work, and he spends most of his time thinking
-                    about how a tight-knit alumni network can be turned into a real,
-                    repeatable advantage for job seekers instead of a pile of cold outreach.
+                    Gianfranco is a Kellogg MBA graduate (Class of 2026) who built this tool
+                    while recruiting alongside his own classmates. His background is in
+                    commercial and product marketing roles across hardware and CPG, including
+                    Samsung, Epson, and a PepsiCo bottler in Latin America. He built Career
+                    Compass because he kept seeing the same problem in his own search: a strong
+                    alumni network with no easy way to see where it actually mattered. His
+                    focus is turning that network into a repeatable advantage for job seekers,
+                    instead of a pile of cold outreach.
                   </p>
                   <a
                     href="https://www.linkedin.com/in/gianfranco-senaja/"
@@ -287,41 +290,51 @@ function AuthPage() {
             </AccordionTrigger>
             <AccordionContent>
               <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+                <p className="font-kellogg text-sm font-semibold text-foreground">
+                  About Kellogg Recruiting Copilot
+                </p>
                 <p>
-                  Kellogg MBA Network turns the alumni network into your job-search engine.
-                  You tell us the function and level you&apos;re targeting, and we surface the
-                  roles where the network can actually get you a connection, an intro or a
-                  referral.
+                  Built by and for Kellogg MBAs, this turns the alumni network into a shared
+                  job feed — surfacing the postings where your cohort already has a foothold,
+                  without turning your search into a public spectacle.
                 </p>
                 <ol className="list-decimal space-y-2 pl-5">
                   <li>
-                    <span className="text-foreground">Set your target.</span> Pick a function
-                    and a level — that&apos;s your filter for everything you see.
+                    <span className="text-foreground">Set your target.</span> Tell us the
+                    function and level you&apos;re going after — that&apos;s the filter for
+                    everything you see.
                   </li>
                   <li>
-                    <span className="text-foreground">Get a prioritized feed.</span> Fresh
-                    postings are ranked by how recent they are and how strong the alumni
-                    presence is at that company in your function.
+                    <span className="text-foreground">Get a feed built for you.</span> Fresh
+                    postings show company, title, location, and days open, ranked by a
+                    priority score.
                   </li>
                   <li>
-                    <span className="text-foreground">See the network signal.</span> Each card
-                    shows how many people in the cohort have applied and whether alumni
-                    overlap exists — counts only, never names.
+                    <span className="text-foreground">Read the network signal.</span> Each
+                    posting shows how many people in the cohort have applied and whether
+                    alumni overlap exists at that company, in your function. Counts only —
+                    never names.
                   </li>
                   <li>
-                    <span className="text-foreground">Log your applications.</span> Tap
-                    &ldquo;I applied&rdquo; to track your pipeline and help the cohort see
-                    where momentum is building.
+                    <span className="text-foreground">Log as you go.</span> Tap &ldquo;I
+                    applied&rdquo; to track your own pipeline and add your data point to the
+                    cohort&apos;s picture.
                   </li>
                   <li>
-                    <span className="text-foreground">Reach the alumni.</span> Alumni who
-                    opt in are on the other side, ready to field coffee chats, intros and
-                    referral requests.
+                    <span className="text-foreground">See it all in one place.</span> Your
+                    dashboard tracks everything you&apos;ve applied to and how your search is
+                    moving.
                   </li>
                 </ol>
                 <p>
-                  Privacy is the default: individual activity is never shown to anyone. You
-                  only ever see aggregate counts, and alumni contact details stay protected.
+                  Access is limited to verified Kellogg emails
+                  (@kellogg.northwestern.edu) — every signal you see comes from your own
+                  cohort, not the open internet.
+                </p>
+                <p>
+                  Privacy by default: your individual activity is never visible to anyone
+                  else. Everyone sees the same aggregate counts. No names, no leaderboard, no
+                  exposure.
                 </p>
               </div>
             </AccordionContent>
