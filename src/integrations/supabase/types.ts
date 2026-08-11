@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       alum_profiles: {
         Row: {
+          avatar_url: string | null
           company_id: string | null
           created_at: string
           email: string
@@ -29,6 +30,7 @@ export type Database = {
           seniority: string | null
         }
         Insert: {
+          avatar_url?: string | null
           company_id?: string | null
           created_at?: string
           email: string
@@ -42,6 +44,7 @@ export type Database = {
           seniority?: string | null
         }
         Update: {
+          avatar_url?: string | null
           company_id?: string | null
           created_at?: string
           email?: string
@@ -133,6 +136,13 @@ export type Database = {
             foreignKeyName: "applications_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "job_seeker_profile_for_alum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -145,6 +155,7 @@ export type Database = {
           ats_type: Database["public"]["Enums"]["ats_type_enum"]
           created_at: string
           id: string
+          logo_url: string | null
           monitoring_method: string
           name: string
         }
@@ -154,6 +165,7 @@ export type Database = {
           ats_type: Database["public"]["Enums"]["ats_type_enum"]
           created_at?: string
           id?: string
+          logo_url?: string | null
           monitoring_method?: string
           name: string
         }
@@ -163,6 +175,7 @@ export type Database = {
           ats_type?: Database["public"]["Enums"]["ats_type_enum"]
           created_at?: string
           id?: string
+          logo_url?: string | null
           monitoring_method?: string
           name?: string
         }
@@ -218,6 +231,13 @@ export type Database = {
             foreignKeyName: "connection_requests_job_seeker_id_fkey"
             columns: ["job_seeker_id"]
             isOneToOne: false
+            referencedRelation: "job_seeker_profile_for_alum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connection_requests_job_seeker_id_fkey"
+            columns: ["job_seeker_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -254,6 +274,7 @@ export type Database = {
           company_id: string
           created_at: string
           date_posted: string | null
+          description: string | null
           function_tag: string | null
           id: string
           last_scored_at: string | null
@@ -267,6 +288,7 @@ export type Database = {
           company_id: string
           created_at?: string
           date_posted?: string | null
+          description?: string | null
           function_tag?: string | null
           id?: string
           last_scored_at?: string | null
@@ -280,6 +302,7 @@ export type Database = {
           company_id?: string
           created_at?: string
           date_posted?: string | null
+          description?: string | null
           function_tag?: string | null
           id?: string
           last_scored_at?: string | null
@@ -326,6 +349,13 @@ export type Database = {
             foreignKeyName: "user_target_roles_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "job_seeker_profile_for_alum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_target_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -364,6 +394,13 @@ export type Database = {
             foreignKeyName: "user_work_experience_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "job_seeker_profile_for_alum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_work_experience_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -371,6 +408,7 @@ export type Database = {
       }
       users: {
         Row: {
+          avatar_url: string | null
           created_at: string
           graduation_year: number | null
           id: string
@@ -381,6 +419,7 @@ export type Database = {
           target_level: string | null
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           graduation_year?: number | null
           id: string
@@ -391,6 +430,7 @@ export type Database = {
           target_level?: string | null
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           graduation_year?: number | null
           id?: string
@@ -429,6 +469,7 @@ export type Database = {
       }
       alum_directory: {
         Row: {
+          avatar_url: string | null
           company_id: string | null
           function: string | null
           graduation_year: number | null
@@ -439,6 +480,7 @@ export type Database = {
           seniority: string | null
         }
         Insert: {
+          avatar_url?: string | null
           company_id?: string | null
           function?: string | null
           graduation_year?: number | null
@@ -449,6 +491,7 @@ export type Database = {
           seniority?: string | null
         }
         Update: {
+          avatar_url?: string | null
           company_id?: string | null
           function?: string | null
           graduation_year?: number | null
@@ -483,10 +526,71 @@ export type Database = {
             foreignKeyName: "connection_requests_job_seeker_id_fkey"
             columns: ["job_seeker_id"]
             isOneToOne: false
+            referencedRelation: "job_seeker_profile_for_alum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connection_requests_job_seeker_id_fkey"
+            columns: ["job_seeker_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
+      }
+      job_seeker_experience_for_alum: {
+        Row: {
+          company_name: string | null
+          end_date: string | null
+          id: string | null
+          role_title: string | null
+          start_date: string | null
+          user_id: string | null
+        }
+        Insert: {
+          company_name?: string | null
+          end_date?: string | null
+          id?: string | null
+          role_title?: string | null
+          start_date?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          company_name?: string | null
+          end_date?: string | null
+          id?: string | null
+          role_title?: string | null
+          start_date?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_work_experience_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "job_seeker_profile_for_alum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_work_experience_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_seeker_profile_for_alum: {
+        Row: {
+          avatar_url: string | null
+          graduation_year: number | null
+          id: string | null
+          name: string | null
+          program: string | null
+          target_function: string | null
+          target_level: string | null
+        }
+        Relationships: []
       }
       posting_application_counts: {
         Row: {

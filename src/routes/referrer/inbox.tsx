@@ -105,7 +105,17 @@ function InboxPage() {
             <li key={r.id} className="rounded-xl border border-border bg-card p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-sm font-medium text-foreground">{r.job_seeker_name ?? "A cohort member"}</p>
+                  {r.job_seeker_id ? (
+                    <Link
+                      to="/referrer/seeker/$seekerId"
+                      params={{ seekerId: r.job_seeker_id }}
+                      className="text-sm font-medium text-foreground hover:text-primary hover:underline"
+                    >
+                      {r.job_seeker_name ?? "A cohort member"}
+                    </Link>
+                  ) : (
+                    <p className="text-sm font-medium text-foreground">A cohort member</p>
+                  )}
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     Requested {r.requested_at ? new Date(r.requested_at).toLocaleDateString() : ""}
                   </p>

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { TARGET_FUNCTIONS, TARGET_LEVELS, PROGRAMS } from "@/lib/kellogg";
+import { AvatarUpload } from "@/components/UserAvatar";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
@@ -34,7 +35,7 @@ function ProfilePage() {
       if (!auth.user) return null;
       const { data, error } = await supabase
         .from("users")
-        .select("id, name, kellogg_email, program, graduation_year")
+        .select("id, name, kellogg_email, program, graduation_year, avatar_url")
         .eq("id", auth.user.id)
         .maybeSingle();
       if (error) throw error;
@@ -67,7 +68,14 @@ function ProfilePage() {
 function BasicInfoForm({
   profile,
 }: {
-  profile: { id: string; name: string | null; kellogg_email: string; program: string | null; graduation_year: number | null };
+  profile: {
+    id: string;
+    name: string | null;
+    kellogg_email: string;
+    program: string | null;
+    graduation_year: number | null;
+    avatar_url: string | null;
+  };
 }) {
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
@@ -107,6 +115,14 @@ function BasicInfoForm({
 
   return (
     <form onSubmit={onSubmit} className="space-y-4 rounded-xl border border-border bg-card p-4">
+      <AvatarUpload
+        userId={profile.id}
+        name={profile.name}
+        table="users"
+        currentPath={profile.avatar_url}
+        onUploaded={() => queryClient.invalidateQueries({ queryKey: ["profile-full"] })}
+      />
+
       <div className="space-y-1.5">
         <label htmlFor="name" className="text-sm font-medium text-foreground">
           Name

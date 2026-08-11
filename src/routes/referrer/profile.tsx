@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { TARGET_FUNCTIONS, TARGET_LEVELS, PROGRAMS } from "@/lib/kellogg";
+import { AvatarUpload } from "@/components/UserAvatar";
 
 export const Route = createFileRoute("/referrer/profile")({
   head: () => ({
@@ -43,7 +44,9 @@ function ReferrerProfilePage() {
       if (!auth.user) return null;
       const { data, error: err } = await supabase
         .from("alum_profiles")
-        .select("id, name, linkedin_url, phone, company_id, function, seniority, program, graduation_year")
+        .select(
+          "id, name, linkedin_url, phone, company_id, function, seniority, program, graduation_year, avatar_url",
+        )
         .eq("id", auth.user.id)
         .maybeSingle();
       if (err) throw err;
@@ -117,6 +120,16 @@ function ReferrerProfilePage() {
       </p>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4 rounded-xl border border-border bg-card p-4">
+        {profileQuery.data && (
+          <AvatarUpload
+            userId={profileQuery.data.id}
+            name={profileQuery.data.name}
+            table="alum_profiles"
+            currentPath={profileQuery.data.avatar_url}
+            onUploaded={() => queryClient.invalidateQueries({ queryKey: ["alum-profile"] })}
+          />
+        )}
+
         <div className="space-y-1.5">
           <label htmlFor="name" className="text-sm font-medium text-foreground">
             Name

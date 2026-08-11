@@ -19,6 +19,8 @@ import { Route as AuthenticatedPreferencesRouteImport } from './routes/_authenti
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as ReferrerInboxRouteImport } from './routes/referrer/inbox'
 import { Route as ReferrerProfileRouteImport } from './routes/referrer/profile'
+import { Route as AuthenticatedAlumAlumIdRouteImport } from './routes/_authenticated/alum.$alumId'
+import { Route as ReferrerSeekerSeekerIdRouteImport } from './routes/referrer/seeker.$seekerId'
 import { Route as ApiPublicN8nCompaniesRouteImport } from './routes/api/public/n8n/companies'
 import { Route as ApiPublicN8nRescoreRouteImport } from './routes/api/public/n8n/rescore'
 import { Route as ApiPublicN8nPostingsClassificationRouteImport } from './routes/api/public/n8n/postings/classification'
@@ -74,6 +76,16 @@ const ReferrerProfileRoute = ReferrerProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => ReferrerRouteRoute,
 } as any)
+const AuthenticatedAlumAlumIdRoute = AuthenticatedAlumAlumIdRouteImport.update({
+  id: '/alum/$alumId',
+  path: '/alum/$alumId',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ReferrerSeekerSeekerIdRoute = ReferrerSeekerSeekerIdRouteImport.update({
+  id: '/seeker/$seekerId',
+  path: '/seeker/$seekerId',
+  getParentRoute: () => ReferrerRouteRoute,
+} as any)
 const ApiPublicN8nCompaniesRoute = ApiPublicN8nCompaniesRouteImport.update({
   id: '/api/public/n8n/companies',
   path: '/api/public/n8n/companies',
@@ -107,6 +119,8 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/referrer/inbox': typeof ReferrerInboxRoute
   '/referrer/profile': typeof ReferrerProfileRoute
+  '/alum/$alumId': typeof AuthenticatedAlumAlumIdRoute
+  '/referrer/seeker/$seekerId': typeof ReferrerSeekerSeekerIdRoute
   '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
   '/api/public/n8n/rescore': typeof ApiPublicN8nRescoreRoute
   '/api/public/n8n/postings/classification': typeof ApiPublicN8nPostingsClassificationRoute
@@ -122,6 +136,8 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/referrer/inbox': typeof ReferrerInboxRoute
   '/referrer/profile': typeof ReferrerProfileRoute
+  '/alum/$alumId': typeof AuthenticatedAlumAlumIdRoute
+  '/referrer/seeker/$seekerId': typeof ReferrerSeekerSeekerIdRoute
   '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
   '/api/public/n8n/rescore': typeof ApiPublicN8nRescoreRoute
   '/api/public/n8n/postings/classification': typeof ApiPublicN8nPostingsClassificationRoute
@@ -139,6 +155,8 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/referrer/inbox': typeof ReferrerInboxRoute
   '/referrer/profile': typeof ReferrerProfileRoute
+  '/_authenticated/alum/$alumId': typeof AuthenticatedAlumAlumIdRoute
+  '/referrer/seeker/$seekerId': typeof ReferrerSeekerSeekerIdRoute
   '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
   '/api/public/n8n/rescore': typeof ApiPublicN8nRescoreRoute
   '/api/public/n8n/postings/classification': typeof ApiPublicN8nPostingsClassificationRoute
@@ -156,6 +174,8 @@ export interface FileRouteTypes {
     | '/profile'
     | '/referrer/inbox'
     | '/referrer/profile'
+    | '/alum/$alumId'
+    | '/referrer/seeker/$seekerId'
     | '/api/public/n8n/companies'
     | '/api/public/n8n/rescore'
     | '/api/public/n8n/postings/classification'
@@ -171,6 +191,8 @@ export interface FileRouteTypes {
     | '/profile'
     | '/referrer/inbox'
     | '/referrer/profile'
+    | '/alum/$alumId'
+    | '/referrer/seeker/$seekerId'
     | '/api/public/n8n/companies'
     | '/api/public/n8n/rescore'
     | '/api/public/n8n/postings/classification'
@@ -187,6 +209,8 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/referrer/inbox'
     | '/referrer/profile'
+    | '/_authenticated/alum/$alumId'
+    | '/referrer/seeker/$seekerId'
     | '/api/public/n8n/companies'
     | '/api/public/n8n/rescore'
     | '/api/public/n8n/postings/classification'
@@ -275,6 +299,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReferrerProfileRouteImport
       parentRoute: typeof ReferrerRouteRoute
     }
+    '/_authenticated/alum/$alumId': {
+      id: '/_authenticated/alum/$alumId'
+      path: '/alum/$alumId'
+      fullPath: '/alum/$alumId'
+      preLoaderRoute: typeof AuthenticatedAlumAlumIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/referrer/seeker/$seekerId': {
+      id: '/referrer/seeker/$seekerId'
+      path: '/seeker/$seekerId'
+      fullPath: '/referrer/seeker/$seekerId'
+      preLoaderRoute: typeof ReferrerSeekerSeekerIdRouteImport
+      parentRoute: typeof ReferrerRouteRoute
+    }
     '/api/public/n8n/companies': {
       id: '/api/public/n8n/companies'
       path: '/api/public/n8n/companies'
@@ -312,6 +350,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedPreferencesRoute: typeof AuthenticatedPreferencesRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedAlumAlumIdRoute: typeof AuthenticatedAlumAlumIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -320,6 +359,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedPreferencesRoute: AuthenticatedPreferencesRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedAlumAlumIdRoute: AuthenticatedAlumAlumIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -328,11 +368,13 @@ const AuthenticatedRouteRouteWithChildren =
 interface ReferrerRouteRouteChildren {
   ReferrerInboxRoute: typeof ReferrerInboxRoute
   ReferrerProfileRoute: typeof ReferrerProfileRoute
+  ReferrerSeekerSeekerIdRoute: typeof ReferrerSeekerSeekerIdRoute
 }
 
 const ReferrerRouteRouteChildren: ReferrerRouteRouteChildren = {
   ReferrerInboxRoute: ReferrerInboxRoute,
   ReferrerProfileRoute: ReferrerProfileRoute,
+  ReferrerSeekerSeekerIdRoute: ReferrerSeekerSeekerIdRoute,
 }
 
 const ReferrerRouteRouteWithChildren = ReferrerRouteRoute._addFileChildren(
