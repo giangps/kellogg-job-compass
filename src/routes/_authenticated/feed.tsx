@@ -1,11 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Users, GraduationCap, ExternalLink, X } from "lucide-react";
-import { useState } from "react";
+import { Check, Users, GraduationCap, ExternalLink, X, SlidersHorizontal } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { daysSince } from "@/lib/kellogg";
+import { daysSince, TARGET_FUNCTIONS, TARGET_LEVELS } from "@/lib/kellogg";
 import { CompanyLogo } from "@/components/CompanyLogo";
+
+function useDebounced<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(t);
+  }, [value, delayMs]);
+  return debounced;
+}
 
 export const Route = createFileRoute("/_authenticated/feed")({
   head: () => ({
@@ -49,6 +58,15 @@ function FeedPage() {
   const [applyError, setApplyError] = useState<{ postingId: string; message: string } | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  const [prefsInitialized, setPrefsInitialized] = useState(false);
+  const [functionFilter, setFunctionFilter] = useState("");
+  const [levelFilter, setLevelFilter] = useState("");
+  const [companyFilter, setCompanyFilter] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [location, setLocation] = useState("");
+  const debouncedKeyword = useDebounced(keyword, 300);
+  const debouncedLocation = useDebounced(location, 300);
+
   const profileQuery = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -69,18 +87,61 @@ function FeedPage() {
   const targetLevel = profile?.target_level ?? null;
   const hasPrefs = Boolean(targetFunction && targetLevel);
 
+  // Default the filter bar to the saved preferences the first time they load,
+  // without stomping on filters the user has already started changing.
+  useEffect(() => {
+    if (prefsInitialized || !profileQuery.isFetched) return;
+    setFunctionFilter(targetFunction ?? "");
+    setLevelFilter(targetLevel ?? "");
+    setPrefsInitialized(true);
+  }, [prefsInitialized, profileQuery.isFetched, targetFunction, targetLevel]);
+
+  const usingCustomFilters =
+    functionFilter !== (targetFunction ?? "") ||
+    levelFilter !== (targetLevel ?? "") ||
+    companyFilter !== "" ||
+    debouncedKeyword.trim() !== "" ||
+    debouncedLocation.trim() !== "";
+
+  function resetToPreferences() {
+    setFunctionFilter(targetFunction ?? "");
+    setLevelFilter(targetLevel ?? "");
+    setCompanyFilter("");
+    setKeyword("");
+    setLocation("");
+  }
+
+  const companiesQuery = useQuery({
+    queryKey: ["active-companies"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("companies")
+        .select("id, name")
+        .eq("active", true)
+        .order("name");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const feedQuery = useQuery({
-    queryKey: ["feed", targetFunction, targetLevel],
-    enabled: hasPrefs && Boolean(profile?.id),
+    queryKey: ["feed", functionFilter, levelFilter, companyFilter, debouncedKeyword, debouncedLocation],
+    enabled: Boolean(profile?.id) && prefsInitialized,
     queryFn: async (): Promise<FeedRow[]> => {
-      const { data: postings, error } = await supabase
+      let query = supabase
         .from("postings")
         .select(
           "id, title, location, date_posted, priority_score, source_url, description, companies(name, logo_url), posting_alumni_overlap(overlap_count)",
         )
-        .eq("function_tag", targetFunction!)
-        .eq("level_tag", targetLevel!)
         .order("priority_score", { ascending: false });
+
+      if (functionFilter) query = query.eq("function_tag", functionFilter);
+      if (levelFilter) query = query.eq("level_tag", levelFilter);
+      if (companyFilter) query = query.eq("company_id", companyFilter);
+      if (debouncedKeyword.trim()) query = query.ilike("title", `%${debouncedKeyword.trim()}%`);
+      if (debouncedLocation.trim()) query = query.ilike("location", `%${debouncedLocation.trim()}%`);
+
+      const { data: postings, error } = await query;
       if (error) throw error;
 
       const ids = (postings ?? []).map((p) => p.id);
@@ -156,31 +217,100 @@ function FeedPage() {
         <div>
           <h1 className="text-xl font-semibold tracking-tight text-foreground">Feed</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {hasPrefs ? (
+            {usingCustomFilters ? (
+              <>Custom search — clear filters to return to your ranked feed.</>
+            ) : hasPrefs ? (
               <>
                 Ranked for {targetFunction} · {targetLevel}
               </>
             ) : (
-              <>Set your targets to see matching postings.</>
+              <>
+                Showing all postings.{" "}
+                <Link to="/preferences" className="text-primary hover:underline">
+                  Set your targets
+                </Link>{" "}
+                for a ranked feed.
+              </>
             )}
           </p>
         </div>
       </div>
 
-      {profileQuery.isLoading ? (
-        <p className="mt-6 text-sm text-muted-foreground">Loading…</p>
-      ) : !hasPrefs ? (
-        <div className="mt-6 rounded-xl border border-dashed border-border p-6 text-center">
-          <p className="text-sm text-muted-foreground">
-            Choose a target function and level first — the feed is filtered to your targets.
-          </p>
-          <Link
-            to="/preferences"
-            className="mt-3 inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Set preferences
-          </Link>
+      <div className="mt-4 rounded-xl border border-border bg-card p-3">
+        <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+          <SlidersHorizontal className="size-3.5" aria-hidden />
+          Search &amp; filter
         </div>
+        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
+          <input
+            type="text"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            placeholder="Search title…"
+            aria-label="Search title"
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition-shadow focus:ring-2 focus:ring-ring"
+          />
+          <select
+            value={functionFilter}
+            onChange={(e) => setFunctionFilter(e.target.value)}
+            aria-label="Function"
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition-shadow focus:ring-2 focus:ring-ring"
+          >
+            <option value="">All functions</option>
+            {TARGET_FUNCTIONS.map((f) => (
+              <option key={f} value={f}>
+                {f}
+              </option>
+            ))}
+          </select>
+          <select
+            value={levelFilter}
+            onChange={(e) => setLevelFilter(e.target.value)}
+            aria-label="Level"
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition-shadow focus:ring-2 focus:ring-ring"
+          >
+            <option value="">All levels</option>
+            {TARGET_LEVELS.map((l) => (
+              <option key={l} value={l}>
+                {l}
+              </option>
+            ))}
+          </select>
+          <select
+            value={companyFilter}
+            onChange={(e) => setCompanyFilter(e.target.value)}
+            aria-label="Company"
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition-shadow focus:ring-2 focus:ring-ring"
+          >
+            <option value="">All companies</option>
+            {(companiesQuery.data ?? []).map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          <input
+            type="text"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="Location…"
+            aria-label="Location"
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition-shadow focus:ring-2 focus:ring-ring"
+          />
+        </div>
+        {usingCustomFilters && (
+          <button
+            type="button"
+            onClick={resetToPreferences}
+            className="mt-2 text-xs font-medium text-primary hover:underline"
+          >
+            Reset to my preferences
+          </button>
+        )}
+      </div>
+
+      {profileQuery.isLoading || !prefsInitialized ? (
+        <p className="mt-6 text-sm text-muted-foreground">Loading…</p>
       ) : feedQuery.isLoading ? (
         <p className="mt-6 text-sm text-muted-foreground">Loading postings…</p>
       ) : feedQuery.error ? (
@@ -188,7 +318,9 @@ function FeedPage() {
       ) : (feedQuery.data ?? []).length === 0 ? (
         <div className="mt-6 rounded-xl border border-dashed border-border p-6 text-center">
           <p className="text-sm text-muted-foreground">
-            No postings match your targets yet. New roles appear as they are found and classified.
+            {usingCustomFilters
+              ? "No postings match these filters. Try broadening your search."
+              : "No postings match your targets yet. New roles appear as they are found and classified."}
           </p>
         </div>
       ) : (
@@ -221,7 +353,7 @@ function JobPanel({ row, onClose }: { row: FeedRow; onClose: () => void }) {
         onClick={onClose}
         className="absolute inset-0 bg-foreground/30 backdrop-blur-sm"
       />
-      <aside className="relative flex h-full w-full max-w-md flex-col border-l border-border bg-card shadow-xl">
+      <aside className="relative flex h-full w-full max-w-2xl flex-col border-l border-border bg-card shadow-xl">
         <div className="flex items-start gap-3 border-b border-border p-4">
           <CompanyLogo name={row.company} logoUrl={row.logoUrl} sourceUrl={row.sourceUrl} />
           <div className="min-w-0 flex-1">
