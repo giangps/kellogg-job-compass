@@ -7,6 +7,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { daysSince, TARGET_FUNCTIONS, TARGET_LEVELS } from "@/lib/kellogg";
 import { CompanyLogo } from "@/components/CompanyLogo";
 
+const POSTED_WITHIN_OPTIONS = [
+  { value: "1", label: "Last 24 hours" },
+  { value: "7", label: "Last 7 days" },
+  { value: "14", label: "Last 14 days" },
+] as const;
+
+function cutoffDateISO(days: number): string {
+  return new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
+}
+
 function useDebounced<T>(value: T, delayMs: number): T {
   const [debounced, setDebounced] = useState(value);
   useEffect(() => {
@@ -64,6 +74,8 @@ function FeedPage() {
   const [companyFilter, setCompanyFilter] = useState("");
   const [keyword, setKeyword] = useState("");
   const [location, setLocation] = useState("");
+  const [postedWithin, setPostedWithin] = useState("14");
+  const [sortBy, setSortBy] = useState<"priority" | "recent">("priority");
   const debouncedKeyword = useDebounced(keyword, 300);
   const debouncedLocation = useDebounced(location, 300);
 
@@ -125,7 +137,16 @@ function FeedPage() {
   });
 
   const feedQuery = useQuery({
-    queryKey: ["feed", functionFilter, levelFilter, companyFilter, debouncedKeyword, debouncedLocation],
+    queryKey: [
+      "feed",
+      functionFilter,
+      levelFilter,
+      companyFilter,
+      debouncedKeyword,
+      debouncedLocation,
+      postedWithin,
+      sortBy,
+    ],
     enabled: Boolean(profile?.id) && prefsInitialized,
     queryFn: async (): Promise<FeedRow[]> => {
       let query = supabase
@@ -133,7 +154,8 @@ function FeedPage() {
         .select(
           "id, title, location, date_posted, priority_score, source_url, description, companies(name, logo_url), posting_alumni_overlap(overlap_count)",
         )
-        .order("priority_score", { ascending: false });
+        .gte("date_posted", cutoffDateISO(Number(postedWithin)))
+        .order(sortBy === "recent" ? "date_posted" : "priority_score", { ascending: false });
 
       if (functionFilter) query = query.eq("function_tag", functionFilter);
       if (levelFilter) query = query.eq("level_tag", levelFilter);
@@ -241,7 +263,7 @@ function FeedPage() {
           <SlidersHorizontal className="size-3.5" aria-hidden />
           Search &amp; filter
         </div>
-        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-6">
           <input
             type="text"
             value={keyword}
@@ -297,6 +319,27 @@ function FeedPage() {
             aria-label="Location"
             className="rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition-shadow focus:ring-2 focus:ring-ring"
           />
+          <select
+            value={postedWithin}
+            onChange={(e) => setPostedWithin(e.target.value)}
+            aria-label="Posted within"
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition-shadow focus:ring-2 focus:ring-ring"
+          >
+            {POSTED_WITHIN_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as "priority" | "recent")}
+            aria-label="Sort by"
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition-shadow focus:ring-2 focus:ring-ring"
+          >
+            <option value="priority">Sort: relevance</option>
+            <option value="recent">Sort: most recent</option>
+          </select>
         </div>
         {usingCustomFilters && (
           <button
