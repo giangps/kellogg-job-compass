@@ -84,6 +84,10 @@ type BackfillResult = {
   remaining: number;
 };
 
+type RescoreResult = {
+  rescored: number;
+};
+
 function AdminPage() {
   const queryClient = useQueryClient();
   const [seeding, setSeeding] = useState(false);
@@ -92,6 +96,9 @@ function AdminPage() {
   const [backfilling, setBackfilling] = useState(false);
   const [backfillResult, setBackfillResult] = useState<BackfillResult | null>(null);
   const [backfillError, setBackfillError] = useState<string | null>(null);
+  const [rescoring, setRescoring] = useState(false);
+  const [rescoreResult, setRescoreResult] = useState<RescoreResult | null>(null);
+  const [rescoreError, setRescoreError] = useState<string | null>(null);
 
   const metricsQuery = useQuery({
     queryKey: ["admin-metrics"],
@@ -149,6 +156,29 @@ function AdminPage() {
       setBackfillError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setBackfilling(false);
+    }
+  }
+
+  async function rescoreAll() {
+    setRescoring(true);
+    setRescoreError(null);
+    setRescoreResult(null);
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      const token = session.session?.access_token;
+      if (!token) throw new Error("Not signed in");
+      const res = await fetch("/api/admin/rescore-all", {
+        method: "POST",
+        headers: { authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`Request failed (${res.status})`);
+      const data: RescoreResult = await res.json();
+      setRescoreResult(data);
+      await queryClient.invalidateQueries({ queryKey: ["admin-metrics"] });
+    } catch (err) {
+      setRescoreError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setRescoring(false);
     }
   }
 
@@ -241,6 +271,32 @@ function AdminPage() {
               </ul>
             )}
           </div>
+        )}
+      </div>
+
+      <div className="mt-3 rounded-xl border border-border bg-card p-4">
+        <p className="text-sm font-medium text-foreground">Rescore all</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Postings only get a priority score when n8n's rescore step completes for the run that
+          classified them — anything classified in a crashed or skipped run stays stuck at 0
+          forever otherwise. This sweeps every classified posting and recomputes its score
+          directly. Safe to re-run any time.
+        </p>
+        <button
+          type="button"
+          onClick={rescoreAll}
+          disabled={rescoring}
+          className="mt-3 inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+        >
+          {rescoring ? "Rescoring…" : "Rescore all"}
+        </button>
+
+        {rescoreError && <p className="mt-3 text-sm text-destructive">{rescoreError}</p>}
+
+        {rescoreResult && (
+          <p className="mt-3 rounded-lg bg-primary/10 px-3 py-2 text-xs text-foreground">
+            Rescored {rescoreResult.rescored} classified postings.
+          </p>
         )}
       </div>
 

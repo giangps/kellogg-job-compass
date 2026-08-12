@@ -263,7 +263,7 @@ function FeedPage() {
           <SlidersHorizontal className="size-3.5" aria-hidden />
           Search &amp; filter
         </div>
-        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-6">
+        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           <input
             type="text"
             value={keyword}

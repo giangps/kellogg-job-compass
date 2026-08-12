@@ -23,6 +23,7 @@ import { Route as ReferrerProfileRouteImport } from './routes/referrer/profile'
 import { Route as AuthenticatedAlumAlumIdRouteImport } from './routes/_authenticated/alum.$alumId'
 import { Route as ApiAdminBackfillDescriptionsRouteImport } from './routes/api/admin/backfill-descriptions'
 import { Route as ApiAdminMetricsRouteImport } from './routes/api/admin/metrics'
+import { Route as ApiAdminRescoreAllRouteImport } from './routes/api/admin/rescore-all'
 import { Route as ApiAdminSeedReferrersRouteImport } from './routes/api/admin/seed-referrers'
 import { Route as ReferrerSeekerSeekerIdRouteImport } from './routes/referrer/seeker.$seekerId'
 import { Route as ApiPublicN8nCompaniesRouteImport } from './routes/api/public/n8n/companies'
@@ -101,6 +102,11 @@ const ApiAdminMetricsRoute = ApiAdminMetricsRouteImport.update({
   path: '/api/admin/metrics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminRescoreAllRoute = ApiAdminRescoreAllRouteImport.update({
+  id: '/api/admin/rescore-all',
+  path: '/api/admin/rescore-all',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminSeedReferrersRoute = ApiAdminSeedReferrersRouteImport.update({
   id: '/api/admin/seed-referrers',
   path: '/api/admin/seed-referrers',
@@ -148,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/alum/$alumId': typeof AuthenticatedAlumAlumIdRoute
   '/api/admin/backfill-descriptions': typeof ApiAdminBackfillDescriptionsRoute
   '/api/admin/metrics': typeof ApiAdminMetricsRoute
+  '/api/admin/rescore-all': typeof ApiAdminRescoreAllRoute
   '/api/admin/seed-referrers': typeof ApiAdminSeedReferrersRoute
   '/referrer/seeker/$seekerId': typeof ReferrerSeekerSeekerIdRoute
   '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
@@ -169,6 +176,7 @@ export interface FileRoutesByTo {
   '/alum/$alumId': typeof AuthenticatedAlumAlumIdRoute
   '/api/admin/backfill-descriptions': typeof ApiAdminBackfillDescriptionsRoute
   '/api/admin/metrics': typeof ApiAdminMetricsRoute
+  '/api/admin/rescore-all': typeof ApiAdminRescoreAllRoute
   '/api/admin/seed-referrers': typeof ApiAdminSeedReferrersRoute
   '/referrer/seeker/$seekerId': typeof ReferrerSeekerSeekerIdRoute
   '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/_authenticated/alum/$alumId': typeof AuthenticatedAlumAlumIdRoute
   '/api/admin/backfill-descriptions': typeof ApiAdminBackfillDescriptionsRoute
   '/api/admin/metrics': typeof ApiAdminMetricsRoute
+  '/api/admin/rescore-all': typeof ApiAdminRescoreAllRoute
   '/api/admin/seed-referrers': typeof ApiAdminSeedReferrersRoute
   '/referrer/seeker/$seekerId': typeof ReferrerSeekerSeekerIdRoute
   '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
@@ -215,6 +224,7 @@ export interface FileRouteTypes {
     | '/alum/$alumId'
     | '/api/admin/backfill-descriptions'
     | '/api/admin/metrics'
+    | '/api/admin/rescore-all'
     | '/api/admin/seed-referrers'
     | '/referrer/seeker/$seekerId'
     | '/api/public/n8n/companies'
@@ -236,6 +246,7 @@ export interface FileRouteTypes {
     | '/alum/$alumId'
     | '/api/admin/backfill-descriptions'
     | '/api/admin/metrics'
+    | '/api/admin/rescore-all'
     | '/api/admin/seed-referrers'
     | '/referrer/seeker/$seekerId'
     | '/api/public/n8n/companies'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/_authenticated/alum/$alumId'
     | '/api/admin/backfill-descriptions'
     | '/api/admin/metrics'
+    | '/api/admin/rescore-all'
     | '/api/admin/seed-referrers'
     | '/referrer/seeker/$seekerId'
     | '/api/public/n8n/companies'
@@ -272,6 +284,7 @@ export interface RootRouteChildren {
   ReferrerRouteRoute: typeof ReferrerRouteRouteWithChildren
   ApiAdminBackfillDescriptionsRoute: typeof ApiAdminBackfillDescriptionsRoute
   ApiAdminMetricsRoute: typeof ApiAdminMetricsRoute
+  ApiAdminRescoreAllRoute: typeof ApiAdminRescoreAllRoute
   ApiAdminSeedReferrersRoute: typeof ApiAdminSeedReferrersRoute
   ApiPublicN8nCompaniesRoute: typeof ApiPublicN8nCompaniesRoute
   ApiPublicN8nRescoreRoute: typeof ApiPublicN8nRescoreRoute
@@ -379,6 +392,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminMetricsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/rescore-all': {
+      id: '/api/admin/rescore-all'
+      path: '/api/admin/rescore-all'
+      fullPath: '/api/admin/rescore-all'
+      preLoaderRoute: typeof ApiAdminRescoreAllRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/seed-referrers': {
       id: '/api/admin/seed-referrers'
       path: '/api/admin/seed-referrers'
@@ -469,6 +489,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReferrerRouteRoute: ReferrerRouteRouteWithChildren,
   ApiAdminBackfillDescriptionsRoute: ApiAdminBackfillDescriptionsRoute,
   ApiAdminMetricsRoute: ApiAdminMetricsRoute,
+  ApiAdminRescoreAllRoute: ApiAdminRescoreAllRoute,
   ApiAdminSeedReferrersRoute: ApiAdminSeedReferrersRoute,
   ApiPublicN8nCompaniesRoute: ApiPublicN8nCompaniesRoute,
   ApiPublicN8nRescoreRoute: ApiPublicN8nRescoreRoute,
