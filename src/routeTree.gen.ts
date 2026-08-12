@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as ReferrerRouteRouteImport } from './routes/referrer/route'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAlumniRouteImport } from './routes/_authenticated/alumni'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
@@ -20,6 +21,8 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as ReferrerInboxRouteImport } from './routes/referrer/inbox'
 import { Route as ReferrerProfileRouteImport } from './routes/referrer/profile'
 import { Route as AuthenticatedAlumAlumIdRouteImport } from './routes/_authenticated/alum.$alumId'
+import { Route as ApiAdminMetricsRouteImport } from './routes/api/admin/metrics'
+import { Route as ApiAdminSeedReferrersRouteImport } from './routes/api/admin/seed-referrers'
 import { Route as ReferrerSeekerSeekerIdRouteImport } from './routes/referrer/seeker.$seekerId'
 import { Route as ApiPublicN8nCompaniesRouteImport } from './routes/api/public/n8n/companies'
 import { Route as ApiPublicN8nRescoreRouteImport } from './routes/api/public/n8n/rescore'
@@ -39,6 +42,11 @@ const ReferrerRouteRoute = ReferrerRouteRouteImport.update({
   id: '/referrer',
   path: '/referrer',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAlumniRoute = AuthenticatedAlumniRouteImport.update({
   id: '/alumni',
@@ -81,6 +89,16 @@ const AuthenticatedAlumAlumIdRoute = AuthenticatedAlumAlumIdRouteImport.update({
   path: '/alum/$alumId',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiAdminMetricsRoute = ApiAdminMetricsRouteImport.update({
+  id: '/api/admin/metrics',
+  path: '/api/admin/metrics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminSeedReferrersRoute = ApiAdminSeedReferrersRouteImport.update({
+  id: '/api/admin/seed-referrers',
+  path: '/api/admin/seed-referrers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReferrerSeekerSeekerIdRoute = ReferrerSeekerSeekerIdRouteImport.update({
   id: '/seeker/$seekerId',
   path: '/seeker/$seekerId',
@@ -112,6 +130,7 @@ const ApiPublicN8nPostingsUpsertRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/referrer': typeof ReferrerRouteRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
   '/alumni': typeof AuthenticatedAlumniRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/feed': typeof AuthenticatedFeedRoute
@@ -120,6 +139,8 @@ export interface FileRoutesByFullPath {
   '/referrer/inbox': typeof ReferrerInboxRoute
   '/referrer/profile': typeof ReferrerProfileRoute
   '/alum/$alumId': typeof AuthenticatedAlumAlumIdRoute
+  '/api/admin/metrics': typeof ApiAdminMetricsRoute
+  '/api/admin/seed-referrers': typeof ApiAdminSeedReferrersRoute
   '/referrer/seeker/$seekerId': typeof ReferrerSeekerSeekerIdRoute
   '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
   '/api/public/n8n/rescore': typeof ApiPublicN8nRescoreRoute
@@ -129,6 +150,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/referrer': typeof ReferrerRouteRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
   '/alumni': typeof AuthenticatedAlumniRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/feed': typeof AuthenticatedFeedRoute
@@ -137,6 +159,8 @@ export interface FileRoutesByTo {
   '/referrer/inbox': typeof ReferrerInboxRoute
   '/referrer/profile': typeof ReferrerProfileRoute
   '/alum/$alumId': typeof AuthenticatedAlumAlumIdRoute
+  '/api/admin/metrics': typeof ApiAdminMetricsRoute
+  '/api/admin/seed-referrers': typeof ApiAdminSeedReferrersRoute
   '/referrer/seeker/$seekerId': typeof ReferrerSeekerSeekerIdRoute
   '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
   '/api/public/n8n/rescore': typeof ApiPublicN8nRescoreRoute
@@ -148,6 +172,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/referrer': typeof ReferrerRouteRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/alumni': typeof AuthenticatedAlumniRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
@@ -156,6 +181,8 @@ export interface FileRoutesById {
   '/referrer/inbox': typeof ReferrerInboxRoute
   '/referrer/profile': typeof ReferrerProfileRoute
   '/_authenticated/alum/$alumId': typeof AuthenticatedAlumAlumIdRoute
+  '/api/admin/metrics': typeof ApiAdminMetricsRoute
+  '/api/admin/seed-referrers': typeof ApiAdminSeedReferrersRoute
   '/referrer/seeker/$seekerId': typeof ReferrerSeekerSeekerIdRoute
   '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
   '/api/public/n8n/rescore': typeof ApiPublicN8nRescoreRoute
@@ -167,6 +194,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/referrer'
+    | '/admin'
     | '/alumni'
     | '/dashboard'
     | '/feed'
@@ -175,6 +203,8 @@ export interface FileRouteTypes {
     | '/referrer/inbox'
     | '/referrer/profile'
     | '/alum/$alumId'
+    | '/api/admin/metrics'
+    | '/api/admin/seed-referrers'
     | '/referrer/seeker/$seekerId'
     | '/api/public/n8n/companies'
     | '/api/public/n8n/rescore'
@@ -184,6 +214,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/referrer'
+    | '/admin'
     | '/alumni'
     | '/dashboard'
     | '/feed'
@@ -192,6 +223,8 @@ export interface FileRouteTypes {
     | '/referrer/inbox'
     | '/referrer/profile'
     | '/alum/$alumId'
+    | '/api/admin/metrics'
+    | '/api/admin/seed-referrers'
     | '/referrer/seeker/$seekerId'
     | '/api/public/n8n/companies'
     | '/api/public/n8n/rescore'
@@ -202,6 +235,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/referrer'
+    | '/_authenticated/admin'
     | '/_authenticated/alumni'
     | '/_authenticated/dashboard'
     | '/_authenticated/feed'
@@ -210,6 +244,8 @@ export interface FileRouteTypes {
     | '/referrer/inbox'
     | '/referrer/profile'
     | '/_authenticated/alum/$alumId'
+    | '/api/admin/metrics'
+    | '/api/admin/seed-referrers'
     | '/referrer/seeker/$seekerId'
     | '/api/public/n8n/companies'
     | '/api/public/n8n/rescore'
@@ -221,6 +257,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ReferrerRouteRoute: typeof ReferrerRouteRouteWithChildren
+  ApiAdminMetricsRoute: typeof ApiAdminMetricsRoute
+  ApiAdminSeedReferrersRoute: typeof ApiAdminSeedReferrersRoute
   ApiPublicN8nCompaniesRoute: typeof ApiPublicN8nCompaniesRoute
   ApiPublicN8nRescoreRoute: typeof ApiPublicN8nRescoreRoute
   ApiPublicN8nPostingsClassificationRoute: typeof ApiPublicN8nPostingsClassificationRoute
@@ -249,6 +287,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/referrer'
       preLoaderRoute: typeof ReferrerRouteRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/alumni': {
       id: '/_authenticated/alumni'
@@ -306,6 +351,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAlumAlumIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/admin/metrics': {
+      id: '/api/admin/metrics'
+      path: '/api/admin/metrics'
+      fullPath: '/api/admin/metrics'
+      preLoaderRoute: typeof ApiAdminMetricsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/seed-referrers': {
+      id: '/api/admin/seed-referrers'
+      path: '/api/admin/seed-referrers'
+      fullPath: '/api/admin/seed-referrers'
+      preLoaderRoute: typeof ApiAdminSeedReferrersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/referrer/seeker/$seekerId': {
       id: '/referrer/seeker/$seekerId'
       path: '/seeker/$seekerId'
@@ -345,6 +404,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAlumniRoute: typeof AuthenticatedAlumniRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
@@ -354,6 +414,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAlumniRoute: AuthenticatedAlumniRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
@@ -385,6 +446,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ReferrerRouteRoute: ReferrerRouteRouteWithChildren,
+  ApiAdminMetricsRoute: ApiAdminMetricsRoute,
+  ApiAdminSeedReferrersRoute: ApiAdminSeedReferrersRoute,
   ApiPublicN8nCompaniesRoute: ApiPublicN8nCompaniesRoute,
   ApiPublicN8nRescoreRoute: ApiPublicN8nRescoreRoute,
   ApiPublicN8nPostingsClassificationRoute:
@@ -394,3 +457,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

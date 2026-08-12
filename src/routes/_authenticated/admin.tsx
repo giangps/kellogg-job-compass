@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 
@@ -67,7 +68,20 @@ function pct(n: number | null): string {
   return `${Math.round(n * 100)}%`;
 }
 
+type SeedResult = {
+  password: string;
+  created: number;
+  skipped: number;
+  errors: { email: string; status: string; detail?: string }[];
+  overlapPairsRecomputed: number;
+};
+
 function AdminPage() {
+  const queryClient = useQueryClient();
+  const [seeding, setSeeding] = useState(false);
+  const [seedResult, setSeedResult] = useState<SeedResult | null>(null);
+  const [seedError, setSeedError] = useState<string | null>(null);
+
   const metricsQuery = useQuery({
     queryKey: ["admin-metrics"],
     queryFn: async (): Promise<Metrics> => {
@@ -82,6 +96,29 @@ function AdminPage() {
     },
   });
 
+  async function seedReferrers() {
+    setSeeding(true);
+    setSeedError(null);
+    setSeedResult(null);
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      const token = session.session?.access_token;
+      if (!token) throw new Error("Not signed in");
+      const res = await fetch("/api/admin/seed-referrers", {
+        method: "POST",
+        headers: { authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`Request failed (${res.status})`);
+      const data: SeedResult = await res.json();
+      setSeedResult(data);
+      await queryClient.invalidateQueries({ queryKey: ["admin-metrics"] });
+    } catch (err) {
+      setSeedError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setSeeding(false);
+    }
+  }
+
   const m = metricsQuery.data;
 
   return (
@@ -90,6 +127,48 @@ function AdminPage() {
       <p className="mt-1 text-sm text-muted-foreground">
         Core KPIs across the whole cohort, refreshed on load.
       </p>
+
+      <div className="mt-5 rounded-xl border border-border bg-card p-4">
+        <p className="text-sm font-medium text-foreground">Seed test referrers</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Creates ~40 fake referrer accounts (2 per active Greenhouse company, @example.com
+          emails) with alum_profiles + alumni_contacts filled in, then recomputes alumni
+          overlap counts across all postings. Safe to re-run — existing accounts are skipped.
+        </p>
+        <button
+          type="button"
+          onClick={seedReferrers}
+          disabled={seeding}
+          className="mt-3 inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+        >
+          {seeding ? "Seeding…" : "Seed test referrers"}
+        </button>
+
+        {seedError && <p className="mt-3 text-sm text-destructive">{seedError}</p>}
+
+        {seedResult && (
+          <div className="mt-3 rounded-lg bg-primary/10 px-3 py-2 text-xs text-foreground">
+            <p>
+              Created {seedResult.created}, skipped {seedResult.skipped} (already existed),{" "}
+              {seedResult.errors.length} error(s). Recomputed overlap for{" "}
+              {seedResult.overlapPairsRecomputed} company/function pairs.
+            </p>
+            <p className="mt-1">
+              Shared password for any seeded account:{" "}
+              <span className="font-mono">{seedResult.password}</span>
+            </p>
+            {seedResult.errors.length > 0 && (
+              <ul className="mt-1 list-disc space-y-0.5 pl-4">
+                {seedResult.errors.map((e) => (
+                  <li key={e.email}>
+                    {e.email}: {e.detail}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </div>
 
       {metricsQuery.isLoading ? (
         <p className="mt-6 text-sm text-muted-foreground">Loading…</p>
