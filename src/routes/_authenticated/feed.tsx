@@ -196,13 +196,25 @@ function FeedPage() {
         const raw = counts.get(p.id) ?? 0;
 
         // priority_score in the DB is a shared, network-wide signal (recency
-        // + alumni overlap) -- identical for every viewer. Add a per-viewer
-        // bonus on top, computed here rather than stored, since a personal
-        // match to *your* saved target isn't something a single shared
-        // column can represent.
+        // + alumni overlap) -- identical for every viewer. Adjust it per
+        // viewer here, computed fresh each load rather than stored, since a
+        // personal match to *your* saved target isn't something a single
+        // shared column can represent.
+        //
+        // Function match gates everything: the level bonus only counts
+        // alongside a function match (a shared level alone, e.g. both
+        // "Mid-Level / Manager", isn't meaningful on its own), and a
+        // function *mismatch* is actively discounted -- not just left
+        // unboosted -- so a fresh or high-overlap unrelated-function
+        // posting can never outrank an actual match.
         let score = Number(p.priority_score);
-        if (targetFunction && p.function_tag === targetFunction) score += 20;
-        if (targetLevel && p.level_tag === targetLevel) score += 10;
+        const functionMatches = Boolean(targetFunction) && p.function_tag === targetFunction;
+        if (functionMatches) {
+          score += 20;
+          if (targetLevel && p.level_tag === targetLevel) score += 10;
+        } else if (targetFunction) {
+          score *= 0.4;
+        }
 
         return {
           id: p.id,
