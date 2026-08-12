@@ -4,7 +4,7 @@ export const Route = createFileRoute("/api/public/n8n/rescore")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { checkN8nSecret, json } = await import("@/lib/n8n.server");
+        const { checkN8nSecret, json, computeBaseScore } = await import("@/lib/n8n.server");
         const denied = checkN8nSecret(request);
         if (denied) return denied;
 
@@ -30,15 +30,11 @@ export const Route = createFileRoute("/api/public/n8n/rescore")({
         // same table), so the insert branch never actually executes.
         const rows = (postings ?? []).map((p) => {
           const basis = p.date_posted ?? p.created_at;
-          const days = Math.max(0, (now - new Date(basis).getTime()) / 86_400_000);
-          const recency = Math.pow(2, -days / 7);
           const overlapRow = Array.isArray(p.posting_alumni_overlap)
             ? p.posting_alumni_overlap[0]
             : (p.posting_alumni_overlap as { overlap_count: number } | null);
           const overlap = overlapRow?.overlap_count ?? 0;
-          const raw =
-            100 * (0.45 * recency + 0.3 * 1.0 + 0.25 * (Math.min(overlap, 3) / 3));
-          const score = Math.round(raw * 100) / 100;
+          const score = computeBaseScore(basis, overlap);
           return {
             id: p.id,
             company_id: p.company_id,

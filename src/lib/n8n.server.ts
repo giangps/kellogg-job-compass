@@ -28,6 +28,14 @@ export function json(body: unknown, status = 200): Response {
   });
 }
 
+/** Shared recency+overlap scoring formula used by classification, rescore, and rescore-all. */
+export function computeBaseScore(basisDate: string, overlapCount: number): number {
+  const days = Math.max(0, (Date.now() - new Date(basisDate).getTime()) / 86_400_000);
+  const recency = Math.pow(2, -days / 7);
+  const raw = 100 * (0.45 * recency + 0.3 * 1.0 + 0.25 * (Math.min(overlapCount, 3) / 3));
+  return Math.round(raw * 100) / 100;
+}
+
 /** Recompute + upsert the alumni overlap count for a posting. */
 export async function refreshOverlap(
   admin: {

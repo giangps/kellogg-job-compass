@@ -201,7 +201,7 @@ function FeedPage() {
         // personal match to *your* saved target isn't something a single
         // shared column can represent.
         //
-        // Function match gates everything: the level bonus only counts
+        // Function match gates everything: the level adjustment only counts
         // alongside a function match (a shared level alone, e.g. both
         // "Mid-Level / Manager", isn't meaningful on its own), and a
         // function *mismatch* is actively discounted -- not just left
@@ -211,10 +211,31 @@ function FeedPage() {
         const functionMatches = Boolean(targetFunction) && p.function_tag === targetFunction;
         if (functionMatches) {
           score += 20;
-          if (targetLevel && p.level_tag === targetLevel) score += 10;
+          if (targetLevel) {
+            const targetIdx = TARGET_LEVELS.indexOf(targetLevel as (typeof TARGET_LEVELS)[number]);
+            const roleIdx = TARGET_LEVELS.indexOf(
+              (p.level_tag ?? "") as (typeof TARGET_LEVELS)[number],
+            );
+            if (targetIdx !== -1 && roleIdx !== -1) {
+              const distance = Math.abs(roleIdx - targetIdx);
+              // Exact match gets a bonus; two-or-more-rung gaps (e.g. an
+              // Executive/VP+ posting for an Entry-Level target) get
+              // discounted the same way a function mismatch does, since a
+              // function-matched but wildly-off-level posting isn't
+              // actually a good match -- only a one-rung gap is left
+              // untouched as "close enough."
+              if (distance === 0) score += 10;
+              else if (distance >= 2) score *= 0.7;
+            }
+          }
         } else if (targetFunction) {
           score *= 0.4;
         }
+        // priority_score is already 0-100; the match bonuses above can push
+        // it past that, which reads as broken on a badge with no visible
+        // scale -- clamp back to the range the UI implies.
+        score = Math.min(100, Math.max(0, score));
+        score = Math.round(score * 100) / 100;
 
         return {
           id: p.id,

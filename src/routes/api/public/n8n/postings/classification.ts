@@ -30,11 +30,12 @@ export const Route = createFileRoute("/api/public/n8n/postings/classification")(
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { computeBaseScore } = await import("@/lib/n8n.server");
         const { data: posting, error } = await supabaseAdmin
           .from("postings")
           .update({ function_tag: parsed.function_tag, level_tag: parsed.level_tag })
           .eq("id", parsed.posting_id)
-          .select("id, company_id")
+          .select("id, company_id, date_posted, created_at")
           .maybeSingle();
 
         if (error) {
@@ -43,8 +44,9 @@ export const Route = createFileRoute("/api/public/n8n/postings/classification")(
         }
         if (!posting) return json({ error: "Posting not found" }, 404);
 
+        let overlap: number;
         try {
-          await refreshOverlap(
+          overlap = await refreshOverlap(
             supabaseAdmin as never,
             posting.id,
             posting.company_id,
@@ -53,6 +55,23 @@ export const Route = createFileRoute("/api/public/n8n/postings/classification")(
         } catch (overlapError) {
           console.error("[n8n/classification] overlap", overlapError);
           return json({ error: "Overlap computation failed" }, 500);
+        }
+
+        // Score right away instead of waiting on the batch /n8n/rescore step
+        // that only runs at the end of a full n8n execution -- otherwise a
+        // posting classified in a run that crashes or gets skipped before
+        // that step stays stuck at the schema default (0) indefinitely.
+        const basis = posting.date_posted ?? posting.created_at;
+        const { error: scoreError } = await supabaseAdmin
+          .from("postings")
+          .update({
+            priority_score: computeBaseScore(basis, overlap),
+            last_scored_at: new Date().toISOString(),
+          })
+          .eq("id", posting.id);
+        if (scoreError) {
+          console.error("[n8n/classification] score", scoreError);
+          return json({ error: "Scoring failed" }, 500);
         }
 
         return json({ tagged: true });

@@ -19,6 +19,7 @@ export const Route = createFileRoute("/api/admin/rescore-all")({
     handlers: {
       POST: async ({ request }) => {
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { computeBaseScore } = await import("@/lib/n8n.server");
 
         const authHeader = request.headers.get("authorization") ?? "";
         const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
@@ -52,14 +53,11 @@ export const Route = createFileRoute("/api/admin/rescore-all")({
 
         const rows = (postings ?? []).map((p: any) => {
           const basis = p.date_posted ?? p.created_at;
-          const days = Math.max(0, (now - new Date(basis).getTime()) / 86_400_000);
-          const recency = Math.pow(2, -days / 7);
           const overlapRow = Array.isArray(p.posting_alumni_overlap)
             ? p.posting_alumni_overlap[0]
             : (p.posting_alumni_overlap as { overlap_count: number } | null);
           const overlap = overlapRow?.overlap_count ?? 0;
-          const raw = 100 * (0.45 * recency + 0.3 * 1.0 + 0.25 * (Math.min(overlap, 3) / 3));
-          const score = Math.round(raw * 100) / 100;
+          const score = computeBaseScore(basis, overlap);
           return {
             id: p.id,
             company_id: p.company_id,
