@@ -51,8 +51,16 @@ function cleanDescription(raw: string | null | undefined): string | null {
 }
 
 function extractJobId(sourceUrl: string): string | null {
-  const match = sourceUrl.match(/\/jobs\/(\d+)/);
-  return match ? match[1]! : null;
+  // Greenhouse job URLs vary a lot by company -- custom-branded career
+  // pages (Databricks, Airbnb, Instacart, etc.) carry the id only in
+  // ?gh_jid=, while standard job-boards.greenhouse.io URLs (Affirm,
+  // Reddit, Twilio) carry it only in the /jobs/{id} path, with no
+  // gh_jid param at all. Try both -- confirmed directly against live
+  // data across ~14 companies, no single pattern covers everyone.
+  const ghJid = sourceUrl.match(/[?&]gh_jid=(\d+)/);
+  if (ghJid) return ghJid[1]!;
+  const pathId = sourceUrl.match(/\/jobs\/(\d+)/);
+  return pathId ? pathId[1]! : null;
 }
 
 export const Route = createFileRoute("/api/admin/backfill-descriptions")({
