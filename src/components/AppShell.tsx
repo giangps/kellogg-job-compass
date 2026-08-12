@@ -4,6 +4,7 @@ import { LogOut } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { SupportChatWidget } from "@/components/SupportChatWidget";
 
 const baseNavItems = [
   { to: "/feed", label: "Feed" },
@@ -11,6 +12,7 @@ const baseNavItems = [
   { to: "/alumni", label: "Alumni network" },
   { to: "/preferences", label: "Preferences" },
   { to: "/profile", label: "My profile" },
+  { to: "/contact", label: "Contact us" },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -69,6 +71,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </nav>
       </header>
       <main className="mx-auto max-w-3xl px-4 py-6 pb-16">{children}</main>
+      <SupportChatWidget />
     </div>
   );
 }

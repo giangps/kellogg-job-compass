@@ -14,10 +14,12 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as ReferrerRouteRouteImport } from './routes/referrer/route'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAlumniRouteImport } from './routes/_authenticated/alumni'
+import { Route as AuthenticatedContactRouteImport } from './routes/_authenticated/contact'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AuthenticatedPreferencesRouteImport } from './routes/_authenticated/preferences'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ReferrerInboxRouteImport } from './routes/referrer/inbox'
 import { Route as ReferrerProfileRouteImport } from './routes/referrer/profile'
 import { Route as AuthenticatedAlumAlumIdRouteImport } from './routes/_authenticated/alum.$alumId'
@@ -25,11 +27,14 @@ import { Route as ApiAdminBackfillDescriptionsRouteImport } from './routes/api/a
 import { Route as ApiAdminMetricsRouteImport } from './routes/api/admin/metrics'
 import { Route as ApiAdminRescoreAllRouteImport } from './routes/api/admin/rescore-all'
 import { Route as ApiAdminSeedReferrersRouteImport } from './routes/api/admin/seed-referrers'
+import { Route as ApiAdminSupportRequestsRouteImport } from './routes/api/admin/support-requests'
+import { Route as ApiSupportRequestsCreateRouteImport } from './routes/api/support-requests/create'
 import { Route as ReferrerSeekerSeekerIdRouteImport } from './routes/referrer/seeker.$seekerId'
 import { Route as ApiPublicN8nCompaniesRouteImport } from './routes/api/public/n8n/companies'
 import { Route as ApiPublicN8nRescoreRouteImport } from './routes/api/public/n8n/rescore'
 import { Route as ApiPublicN8nPostingsClassificationRouteImport } from './routes/api/public/n8n/postings/classification'
 import { Route as ApiPublicN8nPostingsUpsertRouteImport } from './routes/api/public/n8n/postings/upsert'
+import { Route as ApiPublicN8nSupportRequestsClassificationRouteImport } from './routes/api/public/n8n/support-requests/classification'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -55,6 +60,11 @@ const AuthenticatedAlumniRoute = AuthenticatedAlumniRouteImport.update({
   path: '/alumni',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedContactRoute = AuthenticatedContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -75,6 +85,11 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ReferrerInboxRoute = ReferrerInboxRouteImport.update({
   id: '/inbox',
@@ -112,6 +127,17 @@ const ApiAdminSeedReferrersRoute = ApiAdminSeedReferrersRouteImport.update({
   path: '/api/admin/seed-referrers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminSupportRequestsRoute = ApiAdminSupportRequestsRouteImport.update({
+  id: '/api/admin/support-requests',
+  path: '/api/admin/support-requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSupportRequestsCreateRoute =
+  ApiSupportRequestsCreateRouteImport.update({
+    id: '/api/support-requests/create',
+    path: '/api/support-requests/create',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ReferrerSeekerSeekerIdRoute = ReferrerSeekerSeekerIdRouteImport.update({
   id: '/seeker/$seekerId',
   path: '/seeker/$seekerId',
@@ -139,16 +165,24 @@ const ApiPublicN8nPostingsUpsertRoute =
     path: '/api/public/n8n/postings/upsert',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicN8nSupportRequestsClassificationRoute =
+  ApiPublicN8nSupportRequestsClassificationRouteImport.update({
+    id: '/api/public/n8n/support-requests/classification',
+    path: '/api/public/n8n/support-requests/classification',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/referrer': typeof ReferrerRouteRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
   '/alumni': typeof AuthenticatedAlumniRoute
+  '/contact': typeof AuthenticatedContactRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/preferences': typeof AuthenticatedPreferencesRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/api/chat': typeof ApiChatRoute
   '/referrer/inbox': typeof ReferrerInboxRoute
   '/referrer/profile': typeof ReferrerProfileRoute
   '/alum/$alumId': typeof AuthenticatedAlumAlumIdRoute
@@ -156,21 +190,26 @@ export interface FileRoutesByFullPath {
   '/api/admin/metrics': typeof ApiAdminMetricsRoute
   '/api/admin/rescore-all': typeof ApiAdminRescoreAllRoute
   '/api/admin/seed-referrers': typeof ApiAdminSeedReferrersRoute
+  '/api/admin/support-requests': typeof ApiAdminSupportRequestsRoute
+  '/api/support-requests/create': typeof ApiSupportRequestsCreateRoute
   '/referrer/seeker/$seekerId': typeof ReferrerSeekerSeekerIdRoute
   '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
   '/api/public/n8n/rescore': typeof ApiPublicN8nRescoreRoute
   '/api/public/n8n/postings/classification': typeof ApiPublicN8nPostingsClassificationRoute
   '/api/public/n8n/postings/upsert': typeof ApiPublicN8nPostingsUpsertRoute
+  '/api/public/n8n/support-requests/classification': typeof ApiPublicN8nSupportRequestsClassificationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/referrer': typeof ReferrerRouteRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
   '/alumni': typeof AuthenticatedAlumniRoute
+  '/contact': typeof AuthenticatedContactRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/preferences': typeof AuthenticatedPreferencesRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/api/chat': typeof ApiChatRoute
   '/referrer/inbox': typeof ReferrerInboxRoute
   '/referrer/profile': typeof ReferrerProfileRoute
   '/alum/$alumId': typeof AuthenticatedAlumAlumIdRoute
@@ -178,11 +217,14 @@ export interface FileRoutesByTo {
   '/api/admin/metrics': typeof ApiAdminMetricsRoute
   '/api/admin/rescore-all': typeof ApiAdminRescoreAllRoute
   '/api/admin/seed-referrers': typeof ApiAdminSeedReferrersRoute
+  '/api/admin/support-requests': typeof ApiAdminSupportRequestsRoute
+  '/api/support-requests/create': typeof ApiSupportRequestsCreateRoute
   '/referrer/seeker/$seekerId': typeof ReferrerSeekerSeekerIdRoute
   '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
   '/api/public/n8n/rescore': typeof ApiPublicN8nRescoreRoute
   '/api/public/n8n/postings/classification': typeof ApiPublicN8nPostingsClassificationRoute
   '/api/public/n8n/postings/upsert': typeof ApiPublicN8nPostingsUpsertRoute
+  '/api/public/n8n/support-requests/classification': typeof ApiPublicN8nSupportRequestsClassificationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -191,10 +233,12 @@ export interface FileRoutesById {
   '/referrer': typeof ReferrerRouteRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/alumni': typeof AuthenticatedAlumniRoute
+  '/_authenticated/contact': typeof AuthenticatedContactRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/preferences': typeof AuthenticatedPreferencesRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/api/chat': typeof ApiChatRoute
   '/referrer/inbox': typeof ReferrerInboxRoute
   '/referrer/profile': typeof ReferrerProfileRoute
   '/_authenticated/alum/$alumId': typeof AuthenticatedAlumAlumIdRoute
@@ -202,11 +246,14 @@ export interface FileRoutesById {
   '/api/admin/metrics': typeof ApiAdminMetricsRoute
   '/api/admin/rescore-all': typeof ApiAdminRescoreAllRoute
   '/api/admin/seed-referrers': typeof ApiAdminSeedReferrersRoute
+  '/api/admin/support-requests': typeof ApiAdminSupportRequestsRoute
+  '/api/support-requests/create': typeof ApiSupportRequestsCreateRoute
   '/referrer/seeker/$seekerId': typeof ReferrerSeekerSeekerIdRoute
   '/api/public/n8n/companies': typeof ApiPublicN8nCompaniesRoute
   '/api/public/n8n/rescore': typeof ApiPublicN8nRescoreRoute
   '/api/public/n8n/postings/classification': typeof ApiPublicN8nPostingsClassificationRoute
   '/api/public/n8n/postings/upsert': typeof ApiPublicN8nPostingsUpsertRoute
+  '/api/public/n8n/support-requests/classification': typeof ApiPublicN8nSupportRequestsClassificationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -215,10 +262,12 @@ export interface FileRouteTypes {
     | '/referrer'
     | '/admin'
     | '/alumni'
+    | '/contact'
     | '/dashboard'
     | '/feed'
     | '/preferences'
     | '/profile'
+    | '/api/chat'
     | '/referrer/inbox'
     | '/referrer/profile'
     | '/alum/$alumId'
@@ -226,21 +275,26 @@ export interface FileRouteTypes {
     | '/api/admin/metrics'
     | '/api/admin/rescore-all'
     | '/api/admin/seed-referrers'
+    | '/api/admin/support-requests'
+    | '/api/support-requests/create'
     | '/referrer/seeker/$seekerId'
     | '/api/public/n8n/companies'
     | '/api/public/n8n/rescore'
     | '/api/public/n8n/postings/classification'
     | '/api/public/n8n/postings/upsert'
+    | '/api/public/n8n/support-requests/classification'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/referrer'
     | '/admin'
     | '/alumni'
+    | '/contact'
     | '/dashboard'
     | '/feed'
     | '/preferences'
     | '/profile'
+    | '/api/chat'
     | '/referrer/inbox'
     | '/referrer/profile'
     | '/alum/$alumId'
@@ -248,11 +302,14 @@ export interface FileRouteTypes {
     | '/api/admin/metrics'
     | '/api/admin/rescore-all'
     | '/api/admin/seed-referrers'
+    | '/api/admin/support-requests'
+    | '/api/support-requests/create'
     | '/referrer/seeker/$seekerId'
     | '/api/public/n8n/companies'
     | '/api/public/n8n/rescore'
     | '/api/public/n8n/postings/classification'
     | '/api/public/n8n/postings/upsert'
+    | '/api/public/n8n/support-requests/classification'
   id:
     | '__root__'
     | '/'
@@ -260,10 +317,12 @@ export interface FileRouteTypes {
     | '/referrer'
     | '/_authenticated/admin'
     | '/_authenticated/alumni'
+    | '/_authenticated/contact'
     | '/_authenticated/dashboard'
     | '/_authenticated/feed'
     | '/_authenticated/preferences'
     | '/_authenticated/profile'
+    | '/api/chat'
     | '/referrer/inbox'
     | '/referrer/profile'
     | '/_authenticated/alum/$alumId'
@@ -271,25 +330,32 @@ export interface FileRouteTypes {
     | '/api/admin/metrics'
     | '/api/admin/rescore-all'
     | '/api/admin/seed-referrers'
+    | '/api/admin/support-requests'
+    | '/api/support-requests/create'
     | '/referrer/seeker/$seekerId'
     | '/api/public/n8n/companies'
     | '/api/public/n8n/rescore'
     | '/api/public/n8n/postings/classification'
     | '/api/public/n8n/postings/upsert'
+    | '/api/public/n8n/support-requests/classification'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ReferrerRouteRoute: typeof ReferrerRouteRouteWithChildren
+  ApiChatRoute: typeof ApiChatRoute
   ApiAdminBackfillDescriptionsRoute: typeof ApiAdminBackfillDescriptionsRoute
   ApiAdminMetricsRoute: typeof ApiAdminMetricsRoute
   ApiAdminRescoreAllRoute: typeof ApiAdminRescoreAllRoute
   ApiAdminSeedReferrersRoute: typeof ApiAdminSeedReferrersRoute
+  ApiAdminSupportRequestsRoute: typeof ApiAdminSupportRequestsRoute
+  ApiSupportRequestsCreateRoute: typeof ApiSupportRequestsCreateRoute
   ApiPublicN8nCompaniesRoute: typeof ApiPublicN8nCompaniesRoute
   ApiPublicN8nRescoreRoute: typeof ApiPublicN8nRescoreRoute
   ApiPublicN8nPostingsClassificationRoute: typeof ApiPublicN8nPostingsClassificationRoute
   ApiPublicN8nPostingsUpsertRoute: typeof ApiPublicN8nPostingsUpsertRoute
+  ApiPublicN8nSupportRequestsClassificationRoute: typeof ApiPublicN8nSupportRequestsClassificationRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -329,6 +395,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAlumniRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/contact': {
+      id: '/_authenticated/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof AuthenticatedContactRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -356,6 +429,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/referrer/inbox': {
       id: '/referrer/inbox'
@@ -406,6 +486,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminSeedReferrersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/support-requests': {
+      id: '/api/admin/support-requests'
+      path: '/api/admin/support-requests'
+      fullPath: '/api/admin/support-requests'
+      preLoaderRoute: typeof ApiAdminSupportRequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/support-requests/create': {
+      id: '/api/support-requests/create'
+      path: '/api/support-requests/create'
+      fullPath: '/api/support-requests/create'
+      preLoaderRoute: typeof ApiSupportRequestsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/referrer/seeker/$seekerId': {
       id: '/referrer/seeker/$seekerId'
       path: '/seeker/$seekerId'
@@ -441,12 +535,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicN8nPostingsUpsertRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/n8n/support-requests/classification': {
+      id: '/api/public/n8n/support-requests/classification'
+      path: '/api/public/n8n/support-requests/classification'
+      fullPath: '/api/public/n8n/support-requests/classification'
+      preLoaderRoute: typeof ApiPublicN8nSupportRequestsClassificationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAlumniRoute: typeof AuthenticatedAlumniRoute
+  AuthenticatedContactRoute: typeof AuthenticatedContactRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedPreferencesRoute: typeof AuthenticatedPreferencesRoute
@@ -457,6 +559,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAlumniRoute: AuthenticatedAlumniRoute,
+  AuthenticatedContactRoute: AuthenticatedContactRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedPreferencesRoute: AuthenticatedPreferencesRoute,
@@ -487,15 +590,20 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ReferrerRouteRoute: ReferrerRouteRouteWithChildren,
+  ApiChatRoute: ApiChatRoute,
   ApiAdminBackfillDescriptionsRoute: ApiAdminBackfillDescriptionsRoute,
   ApiAdminMetricsRoute: ApiAdminMetricsRoute,
   ApiAdminRescoreAllRoute: ApiAdminRescoreAllRoute,
   ApiAdminSeedReferrersRoute: ApiAdminSeedReferrersRoute,
+  ApiAdminSupportRequestsRoute: ApiAdminSupportRequestsRoute,
+  ApiSupportRequestsCreateRoute: ApiSupportRequestsCreateRoute,
   ApiPublicN8nCompaniesRoute: ApiPublicN8nCompaniesRoute,
   ApiPublicN8nRescoreRoute: ApiPublicN8nRescoreRoute,
   ApiPublicN8nPostingsClassificationRoute:
     ApiPublicN8nPostingsClassificationRoute,
   ApiPublicN8nPostingsUpsertRoute: ApiPublicN8nPostingsUpsertRoute,
+  ApiPublicN8nSupportRequestsClassificationRoute:
+    ApiPublicN8nSupportRequestsClassificationRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -3,6 +3,14 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async () => {
@@ -86,6 +94,17 @@ type BackfillResult = {
 
 type RescoreResult = {
   rescored: number;
+};
+
+type SupportRequest = {
+  id: string;
+  email: string;
+  message: string;
+  category: string | null;
+  urgency: string | null;
+  status: string;
+  created_at: string;
+  triaged_at: string | null;
 };
 
 function AdminPage() {
@@ -181,6 +200,21 @@ function AdminPage() {
       setRescoring(false);
     }
   }
+
+  const supportRequestsQuery = useQuery({
+    queryKey: ["admin-support-requests"],
+    queryFn: async (): Promise<SupportRequest[]> => {
+      const { data: session } = await supabase.auth.getSession();
+      const token = session.session?.access_token;
+      if (!token) throw new Error("Not signed in");
+      const res = await fetch("/api/admin/support-requests", {
+        headers: { authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`Request failed (${res.status})`);
+      const data: { requests: SupportRequest[] } = await res.json();
+      return data.requests;
+    },
+  });
 
   const m = metricsQuery.data;
 
@@ -297,6 +331,48 @@ function AdminPage() {
           <p className="mt-3 rounded-lg bg-primary/10 px-3 py-2 text-xs text-foreground">
             Rescored {rescoreResult.rescored} classified postings.
           </p>
+        )}
+      </div>
+
+      <div className="mt-6">
+        <h2 className="text-sm font-semibold text-foreground">Support requests</h2>
+        {supportRequestsQuery.isLoading ? (
+          <p className="mt-3 text-sm text-muted-foreground">Loading…</p>
+        ) : supportRequestsQuery.error ? (
+          <p className="mt-3 text-sm text-destructive">Could not load support requests.</p>
+        ) : supportRequestsQuery.data && supportRequestsQuery.data.length > 0 ? (
+          <div className="mt-3 rounded-xl border border-border bg-card">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>When</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Message</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Urgency</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {supportRequestsQuery.data.map((r) => (
+                  <TableRow key={r.id}>
+                    <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                      {new Date(r.created_at).toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-xs">{r.email}</TableCell>
+                    <TableCell className="max-w-xs truncate text-xs" title={r.message}>
+                      {r.message}
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {r.category ?? <span className="text-muted-foreground">untriaged</span>}
+                    </TableCell>
+                    <TableCell className="text-xs">{r.urgency ?? "—"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-muted-foreground">No support requests yet.</p>
         )}
       </div>
 

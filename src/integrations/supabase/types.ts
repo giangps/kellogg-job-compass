@@ -322,6 +322,53 @@ export type Database = {
           },
         ]
       }
+      // Hand-added stub for a table that doesn't exist in the live DB yet --
+      // see supabase/apply_support_requests.sql. Replace this by re-running
+      // `supabase gen types` once that migration has actually been applied.
+      support_requests: {
+        Row: {
+          category: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string
+          status: string
+          triaged_at: string | null
+          urgency: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          status?: string
+          triaged_at?: string | null
+          urgency?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          status?: string
+          triaged_at?: string | null
+          urgency?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_target_roles: {
         Row: {
           created_at: string
