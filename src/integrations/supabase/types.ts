@@ -412,6 +412,7 @@ export type Database = {
           created_at: string
           graduation_year: number | null
           id: string
+          is_admin: boolean
           kellogg_email: string
           name: string | null
           program: string | null
@@ -423,6 +424,7 @@ export type Database = {
           created_at?: string
           graduation_year?: number | null
           id: string
+          is_admin?: boolean
           kellogg_email: string
           name?: string | null
           program?: string | null
@@ -434,6 +436,7 @@ export type Database = {
           created_at?: string
           graduation_year?: number | null
           id?: string
+          is_admin?: boolean
           kellogg_email?: string
           name?: string | null
           program?: string | null
