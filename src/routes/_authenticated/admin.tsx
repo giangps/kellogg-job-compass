@@ -76,11 +76,22 @@ type SeedResult = {
   overlapPairsRecomputed: number;
 };
 
+type BackfillResult = {
+  attempted: number;
+  updated: number;
+  skippedNonGreenhouse: number;
+  errors: { id: string; status: string; detail?: string }[];
+  remaining: number;
+};
+
 function AdminPage() {
   const queryClient = useQueryClient();
   const [seeding, setSeeding] = useState(false);
   const [seedResult, setSeedResult] = useState<SeedResult | null>(null);
   const [seedError, setSeedError] = useState<string | null>(null);
+  const [backfilling, setBackfilling] = useState(false);
+  const [backfillResult, setBackfillResult] = useState<BackfillResult | null>(null);
+  const [backfillError, setBackfillError] = useState<string | null>(null);
 
   const metricsQuery = useQuery({
     queryKey: ["admin-metrics"],
@@ -116,6 +127,28 @@ function AdminPage() {
       setSeedError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setSeeding(false);
+    }
+  }
+
+  async function backfillDescriptions() {
+    setBackfilling(true);
+    setBackfillError(null);
+    setBackfillResult(null);
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      const token = session.session?.access_token;
+      if (!token) throw new Error("Not signed in");
+      const res = await fetch("/api/admin/backfill-descriptions", {
+        method: "POST",
+        headers: { authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`Request failed (${res.status})`);
+      const data: BackfillResult = await res.json();
+      setBackfillResult(data);
+    } catch (err) {
+      setBackfillError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setBackfilling(false);
     }
   }
 
@@ -162,6 +195,47 @@ function AdminPage() {
                 {seedResult.errors.map((e) => (
                   <li key={e.email}>
                     {e.email}: {e.detail}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-3 rounded-xl border border-border bg-card p-4">
+        <p className="text-sm font-medium text-foreground">Backfill descriptions</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          One-time cleanup for postings classified before the n8n content-fetch branch existed —
+          those permanently lack a description otherwise. Processes up to 150 at a time; click
+          again if any remain.
+        </p>
+        <button
+          type="button"
+          onClick={backfillDescriptions}
+          disabled={backfilling}
+          className="mt-3 inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+        >
+          {backfilling ? "Backfilling…" : "Backfill descriptions"}
+        </button>
+
+        {backfillError && <p className="mt-3 text-sm text-destructive">{backfillError}</p>}
+
+        {backfillResult && (
+          <div className="mt-3 rounded-lg bg-primary/10 px-3 py-2 text-xs text-foreground">
+            <p>
+              Attempted {backfillResult.attempted}, updated {backfillResult.updated}, skipped{" "}
+              {backfillResult.skippedNonGreenhouse} (non-Greenhouse), {backfillResult.errors.length}{" "}
+              error(s).{" "}
+              {backfillResult.remaining > 0
+                ? `${backfillResult.remaining} still missing a description — click again.`
+                : "None remaining."}
+            </p>
+            {backfillResult.errors.length > 0 && (
+              <ul className="mt-1 list-disc space-y-0.5 pl-4">
+                {backfillResult.errors.slice(0, 10).map((e) => (
+                  <li key={e.id}>
+                    {e.id}: {e.detail}
                   </li>
                 ))}
               </ul>

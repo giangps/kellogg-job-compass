@@ -21,6 +21,7 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as ReferrerInboxRouteImport } from './routes/referrer/inbox'
 import { Route as ReferrerProfileRouteImport } from './routes/referrer/profile'
 import { Route as AuthenticatedAlumAlumIdRouteImport } from './routes/_authenticated/alum.$alumId'
+import { Route as ApiAdminBackfillDescriptionsRouteImport } from './routes/api/admin/backfill-descriptions'
 import { Route as ApiAdminMetricsRouteImport } from './routes/api/admin/metrics'
 import { Route as ApiAdminSeedReferrersRouteImport } from './routes/api/admin/seed-referrers'
 import { Route as ReferrerSeekerSeekerIdRouteImport } from './routes/referrer/seeker.$seekerId'
@@ -89,6 +90,12 @@ const AuthenticatedAlumAlumIdRoute = AuthenticatedAlumAlumIdRouteImport.update({
   path: '/alum/$alumId',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiAdminBackfillDescriptionsRoute =
+  ApiAdminBackfillDescriptionsRouteImport.update({
+    id: '/api/admin/backfill-descriptions',
+    path: '/api/admin/backfill-descriptions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminMetricsRoute = ApiAdminMetricsRouteImport.update({
   id: '/api/admin/metrics',
   path: '/api/admin/metrics',
@@ -139,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/referrer/inbox': typeof ReferrerInboxRoute
   '/referrer/profile': typeof ReferrerProfileRoute
   '/alum/$alumId': typeof AuthenticatedAlumAlumIdRoute
+  '/api/admin/backfill-descriptions': typeof ApiAdminBackfillDescriptionsRoute
   '/api/admin/metrics': typeof ApiAdminMetricsRoute
   '/api/admin/seed-referrers': typeof ApiAdminSeedReferrersRoute
   '/referrer/seeker/$seekerId': typeof ReferrerSeekerSeekerIdRoute
@@ -159,6 +167,7 @@ export interface FileRoutesByTo {
   '/referrer/inbox': typeof ReferrerInboxRoute
   '/referrer/profile': typeof ReferrerProfileRoute
   '/alum/$alumId': typeof AuthenticatedAlumAlumIdRoute
+  '/api/admin/backfill-descriptions': typeof ApiAdminBackfillDescriptionsRoute
   '/api/admin/metrics': typeof ApiAdminMetricsRoute
   '/api/admin/seed-referrers': typeof ApiAdminSeedReferrersRoute
   '/referrer/seeker/$seekerId': typeof ReferrerSeekerSeekerIdRoute
@@ -181,6 +190,7 @@ export interface FileRoutesById {
   '/referrer/inbox': typeof ReferrerInboxRoute
   '/referrer/profile': typeof ReferrerProfileRoute
   '/_authenticated/alum/$alumId': typeof AuthenticatedAlumAlumIdRoute
+  '/api/admin/backfill-descriptions': typeof ApiAdminBackfillDescriptionsRoute
   '/api/admin/metrics': typeof ApiAdminMetricsRoute
   '/api/admin/seed-referrers': typeof ApiAdminSeedReferrersRoute
   '/referrer/seeker/$seekerId': typeof ReferrerSeekerSeekerIdRoute
@@ -203,6 +213,7 @@ export interface FileRouteTypes {
     | '/referrer/inbox'
     | '/referrer/profile'
     | '/alum/$alumId'
+    | '/api/admin/backfill-descriptions'
     | '/api/admin/metrics'
     | '/api/admin/seed-referrers'
     | '/referrer/seeker/$seekerId'
@@ -223,6 +234,7 @@ export interface FileRouteTypes {
     | '/referrer/inbox'
     | '/referrer/profile'
     | '/alum/$alumId'
+    | '/api/admin/backfill-descriptions'
     | '/api/admin/metrics'
     | '/api/admin/seed-referrers'
     | '/referrer/seeker/$seekerId'
@@ -244,6 +256,7 @@ export interface FileRouteTypes {
     | '/referrer/inbox'
     | '/referrer/profile'
     | '/_authenticated/alum/$alumId'
+    | '/api/admin/backfill-descriptions'
     | '/api/admin/metrics'
     | '/api/admin/seed-referrers'
     | '/referrer/seeker/$seekerId'
@@ -257,6 +270,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ReferrerRouteRoute: typeof ReferrerRouteRouteWithChildren
+  ApiAdminBackfillDescriptionsRoute: typeof ApiAdminBackfillDescriptionsRoute
   ApiAdminMetricsRoute: typeof ApiAdminMetricsRoute
   ApiAdminSeedReferrersRoute: typeof ApiAdminSeedReferrersRoute
   ApiPublicN8nCompaniesRoute: typeof ApiPublicN8nCompaniesRoute
@@ -350,6 +364,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/alum/$alumId'
       preLoaderRoute: typeof AuthenticatedAlumAlumIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/admin/backfill-descriptions': {
+      id: '/api/admin/backfill-descriptions'
+      path: '/api/admin/backfill-descriptions'
+      fullPath: '/api/admin/backfill-descriptions'
+      preLoaderRoute: typeof ApiAdminBackfillDescriptionsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/admin/metrics': {
       id: '/api/admin/metrics'
@@ -446,6 +467,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ReferrerRouteRoute: ReferrerRouteRouteWithChildren,
+  ApiAdminBackfillDescriptionsRoute: ApiAdminBackfillDescriptionsRoute,
   ApiAdminMetricsRoute: ApiAdminMetricsRoute,
   ApiAdminSeedReferrersRoute: ApiAdminSeedReferrersRoute,
   ApiPublicN8nCompaniesRoute: ApiPublicN8nCompaniesRoute,
