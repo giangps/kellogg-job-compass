@@ -79,7 +79,7 @@ type SeedResult = {
 type BackfillResult = {
   attempted: number;
   updated: number;
-  skippedNonGreenhouse: number;
+  skippedNoJobId: number;
   errors: { id: string; status: string; detail?: string }[];
   remaining: number;
 };
@@ -225,7 +225,7 @@ function AdminPage() {
           <div className="mt-3 rounded-lg bg-primary/10 px-3 py-2 text-xs text-foreground">
             <p>
               Attempted {backfillResult.attempted}, updated {backfillResult.updated}, skipped{" "}
-              {backfillResult.skippedNonGreenhouse} (non-Greenhouse), {backfillResult.errors.length}{" "}
+              {backfillResult.skippedNoJobId} (couldn't parse a job id), {backfillResult.errors.length}{" "}
               error(s).{" "}
               {backfillResult.remaining > 0
                 ? `${backfillResult.remaining} still missing a description — click again.`

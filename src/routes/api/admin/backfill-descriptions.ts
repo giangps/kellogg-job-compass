@@ -80,7 +80,8 @@ export const Route = createFileRoute("/api/admin/backfill-descriptions")({
 
         const { data: postings, error: postingsError } = await supabaseAdmin
           .from("postings")
-          .select("id, company_id, title, source_url, companies(ats_type, ats_feed_url)")
+          .select("id, company_id, title, source_url, companies!inner(ats_type, ats_feed_url)")
+          .eq("companies.ats_type", "greenhouse")
           .is("description", null)
           .limit(BATCH_LIMIT);
         if (postingsError) {
@@ -106,7 +107,10 @@ export const Route = createFileRoute("/api/admin/backfill-descriptions")({
               c !== null,
           );
 
-        const skipped = (postings ?? []).length - candidates.length;
+        // Greenhouse-only is already enforced by the query itself now (the
+        // !inner join + eq filter above) -- anything skipped here just
+        // failed to yield a job id from its source_url.
+        const skippedNoJobId = (postings ?? []).length - candidates.length;
         const results: {
           id: string;
           status: "updated" | "no_content" | "error";
@@ -161,15 +165,19 @@ export const Route = createFileRoute("/api/admin/backfill-descriptions")({
           }
         }
 
+        // Scoped to Greenhouse too -- this is "how many more this tool can
+        // actually fix," not the total including permanently-unfixable
+        // non-Greenhouse rows (Lever/Workday/bespoke aren't handled here).
         const { count: remaining } = await supabaseAdmin
           .from("postings")
-          .select("id", { count: "exact", head: true })
+          .select("id, companies!inner(ats_type)", { count: "exact", head: true })
+          .eq("companies.ats_type", "greenhouse")
           .is("description", null);
 
         return json({
           attempted: candidates.length,
           updated: updates.length,
-          skippedNonGreenhouse: skipped,
+          skippedNoJobId,
           errors: results.filter((r) => r.status === "error"),
           remaining: remaining ?? 0,
         });
