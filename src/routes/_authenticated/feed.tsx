@@ -152,10 +152,9 @@ function FeedPage() {
       let query = supabase
         .from("postings")
         .select(
-          "id, title, location, date_posted, priority_score, source_url, description, companies(name, logo_url), posting_alumni_overlap(overlap_count)",
+          "id, title, location, date_posted, priority_score, function_tag, level_tag, source_url, description, companies(name, logo_url), posting_alumni_overlap(overlap_count)",
         )
-        .gte("date_posted", cutoffDateISO(Number(postedWithin)))
-        .order(sortBy === "recent" ? "date_posted" : "priority_score", { ascending: false });
+        .gte("date_posted", cutoffDateISO(Number(postedWithin)));
 
       if (functionFilter) query = query.eq("function_tag", functionFilter);
       if (levelFilter) query = query.eq("level_tag", levelFilter);
@@ -188,19 +187,29 @@ function FeedPage() {
       );
       const mine = new Set((mineRes.data ?? []).map((a) => a.posting_id));
 
-      return (postings ?? []).map((p) => {
+      const rows = (postings ?? []).map((p) => {
         const overlap = Array.isArray(p.posting_alumni_overlap)
           ? p.posting_alumni_overlap[0]
           : p.posting_alumni_overlap;
         const company = Array.isArray(p.companies) ? p.companies[0] : p.companies;
         const viewerApplied = mine.has(p.id);
         const raw = counts.get(p.id) ?? 0;
+
+        // priority_score in the DB is a shared, network-wide signal (recency
+        // + alumni overlap) -- identical for every viewer. Add a per-viewer
+        // bonus on top, computed here rather than stored, since a personal
+        // match to *your* saved target isn't something a single shared
+        // column can represent.
+        let score = Number(p.priority_score);
+        if (targetFunction && p.function_tag === targetFunction) score += 20;
+        if (targetLevel && p.level_tag === targetLevel) score += 10;
+
         return {
           id: p.id,
           title: p.title,
           location: p.location,
           datePosted: p.date_posted,
-          priorityScore: Number(p.priority_score),
+          priorityScore: score,
           company: company?.name ?? "—",
           logoUrl: company?.logo_url ?? null,
           description: p.description ?? null,
@@ -210,6 +219,14 @@ function FeedPage() {
           viewerApplied,
         };
       });
+
+      rows.sort((a, b) =>
+        sortBy === "recent"
+          ? (b.datePosted ?? "").localeCompare(a.datePosted ?? "")
+          : b.priorityScore - a.priorityScore,
+      );
+
+      return rows;
     },
   });
 
